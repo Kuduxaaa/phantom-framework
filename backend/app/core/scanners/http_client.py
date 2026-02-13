@@ -7,20 +7,28 @@ class HTTPClient:
     """
     HTTP client for signature execution.
     """
-    
-    def __init__(self, timeout: int = 30, follow_redirects: bool = False):
+    def __init__(
+        self,
+        timeout: int = 30,
+        follow_redirects: bool = False,
+        proxy: str | None = None,
+        headers: dict | None = None,
+    ):
         self.timeout = timeout
         self.follow_redirects = follow_redirects
+
         self.client = httpx.AsyncClient(
             timeout=timeout,
             follow_redirects=follow_redirects,
             verify=False,
+            proxy=proxy,
+            headers=headers or {},
             limits=httpx.Limits(
                 max_connections=100,
                 max_keepalive_connections=20,
             ),
         )
-    
+
     async def request(
         self,
         method: str,
