@@ -1,0 +1,53 @@
+id: ssti-detection
+name: Server-Side Template Injection (SSTI)
+version: 1.0
+author: GochaOqradze
+severity: high
+description: >
+  Detects server-side template injection by injecting arithmetic expressions
+  in various template engine syntaxes (Jinja2, Twig, ERB, Mako, Freemarker).
+  If the computed result (51783 = 123 * 421) appears in the response,
+  the template engine is evaluating user input.
+
+info:
+  cwe-id: CWE-1336
+
+tags:
+  - ssti
+  - template-injection
+  - injection
+  - rce
+
+references:
+  - https://portswigger.net/research/server-side-template-injection
+
+requests:
+  - method: GET
+    path:
+      - "/search?q={{payload}}"
+      - "/page?name={{payload}}"
+      - "/render?template={{payload}}"
+      - "/view?data={{payload}}"
+      - "/profile?bio={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "<%= 123 * 421 %>inject"
+        - "#{123 * 421}inject"
+        - "${{123*421}}inject"
+        - "${123*421}inject"
+
+    matchers:
+      - type: word
+        words:
+          - "51783inject"
+
+    extractors:
+      - type: regex
+        name: template_output
+        regex:
+          - "(51783inject)"
+        group: 1
+
+stop-at-first-match: true

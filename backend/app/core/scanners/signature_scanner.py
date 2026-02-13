@@ -1,3 +1,5 @@
+import asyncio
+import itertools
 from typing import Dict, Any, List, Optional
 from urllib.parse import urljoin, urlparse
 
@@ -19,12 +21,18 @@ class SignatureScanner:
     """
 		
     
-    def __init__(self):
+    def __init__(self, http_client: Optional[HTTPClient] = None, concurrency: int = 10):
         """
 		Initializes the SignatureScanner and its dependent engines.
+
+        Args:
+            http_client: Optional shared HTTP client for connection pooling.
+            concurrency: Max concurrent HTTP requests per template scan.
         """
-		
-        self.http_client = HTTPClient()
+
+        self.http_client = http_client or HTTPClient()
+        self._owns_client = http_client is None
+        self._concurrency = concurrency
         self.parser = SignatureParser()
         self.validator = SignatureValidator()
         self.dsl_engine = DSLEngine()
@@ -261,7 +269,55 @@ class SignatureScanner:
             )
         
         return results
-    
+
+    async def _execute_batch(
+        self,
+        specs: List[Dict[str, Any]],
+        request_config: Dict[str, Any],
+        signature: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Execute pre-computed request specs concurrently, then match sequentially.
+
+        Args:
+            specs: List of dicts with method, url, headers, body, and optional payload/payloads.
+            request_config: The request configuration for matching.
+            signature: The full signature definition.
+
+        Returns:
+            A list of matched result dictionaries.
+        """
+        if not specs:
+            return []
+
+        sem = asyncio.Semaphore(self._concurrency)
+
+        async def _fire(spec):
+            async with sem:
+                return await self.http_client.request(
+                    method=spec['method'],
+                    url=spec['url'],
+                    headers=spec['headers'],
+                    body=spec['body']
+                )
+
+        responses = await asyncio.gather(*[_fire(s) for s in specs])
+
+        results = []
+        for spec, response in zip(specs, responses):
+            self._update_context(response)
+            result = self._process_response(
+                response, request_config, signature, spec['url']
+            )
+            if result:
+                if 'payload' in spec:
+                    result['payload'] = spec['payload']
+                if 'payloads' in spec:
+                    result['payloads'] = spec['payloads']
+                results.append(result)
+
+        return results
+
     async def _attack_batteringram(
         self,
         request_config: Dict[str, Any],
@@ -284,48 +340,36 @@ class SignatureScanner:
             A list of result dictionaries.
         """
 		
-        results = []
-        
+        specs = []
         payload_list = list(payloads.values())[0] if payloads else []
-        
+
         for payload in payload_list:
             for placeholder in payloads.keys():
                 self.dsl_engine.set_variable(placeholder, payload)
-            
+
             paths = request_config.get('path', ['/'])
-            
-            for path in paths:
-                path = self.dsl_engine.evaluate(path)
+            method = request_config.get('method', 'GET')
+
+            for path_tpl in paths:
+                path = self.dsl_engine.evaluate(path_tpl)
                 url = self._build_url(target_url, path)
-                
-                method = request_config.get('method', 'GET')
-                headers = request_config.get('headers', {})
+                headers = {
+                    k: self.dsl_engine.evaluate(str(v))
+                    for k, v in request_config.get('headers', {}).items()
+                }
                 body = request_config.get('body')
-                
-                headers = {k: self.dsl_engine.evaluate(str(v)) for k, v in headers.items()}
-                
                 if body:
                     body = self.dsl_engine.evaluate(body)
-                
-                response = await self.http_client.request(
-                    method=method,
-                    url=url,
-                    headers=headers,
-                    body=body
-                )
-                
-                result = self._process_response(
-                    response, 
-                    request_config, 
-                    signature,
-                    url
-                )
-                
-                if result:
-                    result['payload'] = payload
-                    results.append(result)
-        
-        return results
+
+                specs.append({
+                    'method': method,
+                    'url': url,
+                    'headers': dict(headers),
+                    'body': body,
+                    'payload': payload,
+                })
+
+        return await self._execute_batch(specs, request_config, signature)
     
     async def _attack_pitchfork(
         self,
@@ -350,55 +394,42 @@ class SignatureScanner:
             A list of result dictionaries.
         """
 		
-        results = []
-        
+        specs = []
         payload_names = list(payloads.keys())
         payload_lists = list(payloads.values())
-        
         min_length = min(len(lst) for lst in payload_lists) if payload_lists else 0
-        
+
         for i in range(min_length):
-            for name, payload_list in zip(payload_names, payload_lists):
-                self.dsl_engine.set_variable(name, payload_list[i])
-            
+            current_payloads = {
+                name: payload_lists[idx][i]
+                for idx, name in enumerate(payload_names)
+            }
+            for name, val in current_payloads.items():
+                self.dsl_engine.set_variable(name, val)
+
             paths = request_config.get('path', ['/'])
-            
-            for path in paths:
-                path = self.dsl_engine.evaluate(path)
+            method = request_config.get('method', 'GET')
+
+            for path_tpl in paths:
+                path = self.dsl_engine.evaluate(path_tpl)
                 url = self._build_url(target_url, path)
-                
-                method = request_config.get('method', 'GET')
-                headers = request_config.get('headers', {})
+                headers = {
+                    k: self.dsl_engine.evaluate(str(v))
+                    for k, v in request_config.get('headers', {}).items()
+                }
                 body = request_config.get('body')
-                
-                headers = {k: self.dsl_engine.evaluate(str(v)) for k, v in headers.items()}
-                
                 if body:
                     body = self.dsl_engine.evaluate(body)
-                
-                response = await self.http_client.request(
-                    method=method,
-                    url=url,
-                    headers=headers,
-                    body=body
-                )
-                
-                result = self._process_response(
-                    response, 
-                    request_config, 
-                    signature,
-                    url
-                )
-                
-                if result:
-                    result['payloads'] = {
-                        name: payload_lists[idx][i] 
-                        for idx, name in enumerate(payload_names)
-                    }
 
-                    results.append(result)
-        
-        return results
+                specs.append({
+                    'method': method,
+                    'url': url,
+                    'headers': dict(headers),
+                    'body': body,
+                    'payloads': dict(current_payloads),
+                })
+
+        return await self._execute_batch(specs, request_config, signature)
     
     async def _attack_clusterbomb(
         self,
@@ -423,54 +454,40 @@ class SignatureScanner:
             A list of result dictionaries.
         """
 		
-        results = []
-        
-        import itertools
-        
+        specs = []
         payload_names = list(payloads.keys())
         payload_lists = list(payloads.values())
-        
+
         for combination in itertools.product(*payload_lists):
-            for name, payload in zip(payload_names, combination):
-                self.dsl_engine.set_variable(name, payload)
-            
+            current_payloads = {
+                name: val for name, val in zip(payload_names, combination)
+            }
+            for name, val in current_payloads.items():
+                self.dsl_engine.set_variable(name, val)
+
             paths = request_config.get('path', ['/'])
-            
-            for path in paths:
-                path = self.dsl_engine.evaluate(path)
+            method = request_config.get('method', 'GET')
+
+            for path_tpl in paths:
+                path = self.dsl_engine.evaluate(path_tpl)
                 url = self._build_url(target_url, path)
-                
-                method = request_config.get('method', 'GET')
-                headers = request_config.get('headers', {})
+                headers = {
+                    k: self.dsl_engine.evaluate(str(v))
+                    for k, v in request_config.get('headers', {}).items()
+                }
                 body = request_config.get('body')
-                
-                headers = {k: self.dsl_engine.evaluate(str(v)) for k, v in headers.items()}
-                
                 if body:
                     body = self.dsl_engine.evaluate(body)
-                
-                response = await self.http_client.request(
-                    method=method,
-                    url=url,
-                    headers=headers,
-                    body=body
-                )
-                
-                result = self._process_response(
-                    response, 
-                    request_config, 
-                    signature,
-                    url
-                )
-                
-                if result:
-                    result['payloads'] = {
-                        name: payload 
-                        for name, payload in zip(payload_names, combination)
-                    }
-                    results.append(result)
-        
-        return results
+
+                specs.append({
+                    'method': method,
+                    'url': url,
+                    'headers': dict(headers),
+                    'body': body,
+                    'payloads': dict(current_payloads),
+                })
+
+        return await self._execute_batch(specs, request_config, signature)
     
     async def _execute_raw_request(self, raw: str, target_url: str) -> Dict[str, Any]:
         """
@@ -545,21 +562,23 @@ class SignatureScanner:
 		
         request_matchers = request_config.get('matchers', [])
         request_matchers_condition = request_config.get('matchers_condition', 'or')
-        
+
         if request_matchers:
             matched = self.matcher_engine.match_all(
                 request_matchers,
                 response,
-                request_matchers_condition
+                request_matchers_condition,
+                dsl_engine=self.dsl_engine
             )
         else:
             signature_matchers = signature.get('matchers', [])
             signature_matchers_condition = signature.get('matchers_condition', 'or')
-            
+
             matched = self.matcher_engine.match_all(
                 signature_matchers,
                 response,
-                signature_matchers_condition
+                signature_matchers_condition,
+                dsl_engine=self.dsl_engine
             )
         
         if not matched:
@@ -620,6 +639,7 @@ class SignatureScanner:
 		
         self.dsl_engine.set_context('status_code', response.get('status_code', 0))
         self.dsl_engine.set_context('content_length', len(response.get('body', '')))
+        self.dsl_engine.set_context('duration', response.get('elapsed', 0))
     
     def _check_req_condition(self, request_config: Dict[str, Any], idx: int) -> bool:
         """
@@ -657,8 +677,7 @@ class SignatureScanner:
     
     async def close(self):
         """
-		
-        Closes the underlying HTTP client resources.
+        Closes the underlying HTTP client resources (only if owned).
         """
-        
-        await self.http_client.close()
+        if self._owns_client:
+            await self.http_client.close()

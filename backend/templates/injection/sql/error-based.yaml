@@ -1,0 +1,153 @@
+id: sqli-error-based
+name: SQL Injection - Error Based Detection
+version: 1.0
+author: Phantom Team
+severity: high
+description: >
+  Detects SQL injection vulnerabilities by injecting quote characters
+  and analyzing responses for database error messages across multiple
+  DBMS platforms including MySQL, PostgreSQL, Oracle, MSSQL, SQLite,
+  and many others.
+
+tags:
+  - sqli
+  - injection
+  - database
+  - error-based
+
+references:
+  - https://owasp.org/www-community/attacks/SQL_Injection
+
+requests:
+  - method: GET
+    path:
+      - "/?id={{payload}}"
+      - "/search?q={{payload}}"
+      - "/page?id={{payload}}"
+      - "/article?id={{payload}}"
+      - "/product?id={{payload}}"
+      - "/user?id={{payload}}"
+      - "/category?cat={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "'"
+        - '"'
+        - "`"
+
+    matchers-condition: and
+    matchers:
+      - type: word
+        words:
+          - "Adminer"
+        negative: true
+
+      - type: regex
+        regex:
+          # MySQL / MariaDB
+          - "check the manual that (corresponds to|fits) your (MySQL|MariaDB) server version"
+          - "SQL syntax.*?MySQL"
+          - "Warning.*?\\Wmysqli?_"
+          - "MySQLSyntaxErrorException"
+          - "valid MySQL result"
+          - "Unknown column '[^ ]+' in 'field list'"
+          - "MySqlClient\\."
+          - "com\\.mysql\\.jdbc"
+          - "MySqlException"
+          - "SQLSTATE\\[\\d+\\]: Syntax error or access violation"
+          # PostgreSQL
+          - "PostgreSQL.*?ERROR"
+          - "Warning.*?\\Wpg_"
+          - "valid PostgreSQL result"
+          - "Npgsql\\."
+          - "PG::SyntaxError:"
+          - "org\\.postgresql\\.util\\.PSQLException"
+          - "ERROR:\\s\\ssyntax error at or near"
+          - "PostgreSQL query failed"
+          - "PSQLException"
+          # Oracle
+          - "\\bORA-\\d{5}"
+          - "Oracle error"
+          - "Oracle.*?Driver"
+          - "Warning.*?\\W(oci|ora)_"
+          - "quoted string not properly terminated"
+          - "SQL command not properly ended"
+          - "OracleException"
+          # Microsoft SQL Server
+          - "Driver.*? SQL[\\-\\_\\ ]*Server"
+          - "OLE DB.*? SQL Server"
+          - "\\bSQL Server[^<\"]+Driver"
+          - "Warning.*?\\W(mssql|sqlsrv)_"
+          - "System\\.Data\\.SqlClient\\.SqlException"
+          - "ODBC SQL Server Driver"
+          - "SQLServer JDBC Driver"
+          - "SQL(Srv|Server)Exception"
+          # SQLite
+          - "SQLite/JDBCDriver"
+          - "SQLite\\.Exception"
+          - "(Microsoft|System)\\.Data\\.SQLite\\.SQLiteException"
+          - "Warning.*?\\W(sqlite_|SQLite3::)"
+          - "sqlite3.OperationalError:"
+          - "SQLiteException"
+          # IBM DB2
+          - "CLI Driver.*?DB2"
+          - "DB2 SQL error"
+          - "SQLCODE[=:\\d, -]+SQLSTATE"
+          - "com\\.ibm\\.db2\\.jcc"
+          - "DB2Exception"
+          # Microsoft Access
+          - "Microsoft Access ([0-9]+ )?Driver"
+          - "JET Database Engine"
+          - "Access Database Engine"
+          - "ODBC Microsoft Access"
+          - "Syntax error \\(missing operator\\) in query expression"
+          # Firebird
+          - "Dynamic SQL Error"
+          - "Warning.*?\\Wibase_"
+          - "org\\.firebirdsql\\.jdbc"
+          # Informix
+          - "Warning.*?\\Wifx_"
+          - "Exception.*?Informix"
+          - "Informix ODBC Driver"
+          - "com\\.informix\\.jdbc"
+          - "IfxException"
+          # Sybase
+          - "Warning.*?\\Wsybase_"
+          - "Sybase message"
+          - "SybSQLException"
+          - "com\\.sybase\\.jdbc"
+          # SAP MaxDB
+          - "SQL error.*?POS([0-9]+)"
+          - "Warning.*?\\Wmaxdb_"
+          - "DriverSapDB"
+          - "com\\.sap\\.dbtech\\.jdbc"
+          # H2 / HSQLDB / Derby / Others
+          - "org\\.h2\\.jdbc"
+          - "Unexpected end of command in statement \\["
+          - "org\\.hsqldb\\.jdbc"
+          - "Syntax error: Encountered"
+          - "org\\.apache\\.derby"
+          - "ERROR 42X01"
+          - "io\\.crate\\.client\\.jdbc"
+          - "com\\.mimer\\.jdbc"
+          - "Altibase\\.jdbc\\.driver"
+          - "com\\.vertica\\.jdbc"
+          - "nl\\.cwi\\.monetdb\\.jdbc"
+          - "com\\.frontbase\\.jdbc"
+          - "com\\.ingres\\.gcf\\.jdbc"
+          - "Ingres SQLSTATE"
+          - "encountered after end of query"
+        condition: or
+
+    extractors:
+      - type: regex
+        name: error_message
+        regex:
+          - "(SQL syntax[^<]+)"
+          - "(Warning[^<]+)"
+          - "(ORA-\\d{5}[^<]+)"
+          - "(PostgreSQL.*?ERROR[^<]+)"
+        group: 1
+
+stop-at-first-match: true

@@ -1,0 +1,45 @@
+id: xss-reflected
+name: Reflected XSS - Tag Injection Detection
+version: 1.0
+author: Phantom Team
+severity: high
+description: >
+  Detects reflected cross-site scripting by injecting a custom HTML tag marker
+  and checking if it appears unencoded in the response body. This confirms
+  the application does not properly sanitize user input in HTML context.
+
+tags:
+  - xss
+  - injection
+  - reflected
+  - client-side
+
+references:
+  - https://owasp.org/www-community/attacks/xss/
+
+requests:
+  - method: GET
+    path:
+      - "/search?q={{payload}}"
+      - "/page?name={{payload}}"
+      - "/user?id={{payload}}"
+      - "/article?title={{payload}}"
+      - "/comment?text={{payload}}"
+
+    redirects: true
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "abc<xsshere>abc"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "<xsshere>"

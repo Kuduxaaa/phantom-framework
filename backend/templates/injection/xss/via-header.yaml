@@ -1,0 +1,52 @@
+id: xss-via-header
+name: XSS via HTTP Request Headers
+version: 1.0
+author: Phantom Team
+severity: high
+description: >
+  Detects cross-site scripting via HTTP request headers. Some applications
+  reflect header values (e.g., custom headers, User-Agent) in their HTML
+  responses without proper encoding, enabling XSS through header injection.
+
+tags:
+  - xss
+  - header-injection
+  - reflected
+
+references:
+  - https://brutelogic.com.br/blog/xss-via-http-headers/
+
+requests:
+  - method: GET
+    path:
+      - "/"
+
+    redirects: true
+
+    headers:
+      X-Custom-Test: "<xssHere>"
+      Referer: "<xssHere>"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - "<xssHere>"
+
+  - method: GET
+    path:
+      - "/"
+
+    headers:
+      X-Custom-Test: "<xssHere>"
+
+    matchers:
+      - type: word
+        part: header
+        words:
+          - "<xssHere>"

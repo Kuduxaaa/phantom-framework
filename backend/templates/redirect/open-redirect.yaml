@@ -1,0 +1,90 @@
+id: open-redirect
+name: Open Redirect Vulnerability
+version: 1.0
+author: Phantom Team
+severity: low
+description: >
+  Detects open redirect vulnerabilities by injecting external URLs with
+  various bypass techniques (protocol-relative, scheme manipulation,
+  path prefix tricks). Checks for redirect Location headers pointing
+  to attacker-controlled domains.
+
+info:
+  cwe-id: CWE-601
+
+tags:
+  - redirect
+  - open-redirect
+  - phishing
+
+references:
+  - https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html
+
+variables:
+  evil: "evil.com"
+
+requests:
+  - method: GET
+    path:
+      - "/redirect?url={{payload}}"
+      - "/goto?url={{payload}}"
+      - "/redir?target={{payload}}"
+      - "/jump?to={{payload}}"
+      - "/out?link={{payload}}"
+      - "/next?url={{payload}}"
+      - "/return?returnUrl={{payload}}"
+      - "/login?next={{payload}}"
+      - "/logout?redirect={{payload}}"
+
+    redirects: false
+
+    attack: batteringram
+    payloads:
+      payload:
+        # Standard external URLs
+        - "http://{{evil}}"
+        - "https://{{evil}}"
+        # Protocol-relative
+        - "//{{evil}}"
+        - "///{{evil}}"
+        - "///;@{{evil}}"
+        # Scheme tricks
+        - "https:{{evil}}"
+        - "/\\{{evil}}"
+        # Path bypass variants
+        - "http://{{evil}}/"
+        - "http://{{evil}}./"
+        - "http://{{evil}}/.;/"
+        - "http://{{evil}}/dummy/../"
+        - "http://{{evil}}/dummy/..;/"
+        - "//{{evil}}/"
+        - "//{{evil}}./"
+        - "//{{evil}}/.;/"
+        - "//{{evil}}/dummy/../"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 301
+          - 302
+          - 303
+          - 307
+          - 308
+
+      - type: regex
+        part: header
+        regex:
+          - "(?i)location:\\s*(https?:)?//{{evil}}"
+          - "(?i)location:\\s*https?:{{evil}}"
+        condition: or
+
+    extractors:
+      - type: regex
+        name: redirect_location
+        part: header
+        regex:
+          - "(?i)location:\\s*(.+)"
+        group: 1
+
+stop-at-first-match: true

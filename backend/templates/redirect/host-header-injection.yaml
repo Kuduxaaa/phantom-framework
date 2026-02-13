@@ -1,0 +1,79 @@
+id: host-header-injection
+name: Host Header Injection
+version: 1.0
+author: Phantom Team
+severity: medium
+description: >
+  Detects host header injection by manipulating the Host header to point
+  to an attacker-controlled domain. If the application uses the Host header
+  to generate URLs (password reset, redirects), this can lead to cache
+  poisoning, password reset hijacking, and web cache deception.
+
+info:
+  cwe-id: CWE-644
+
+tags:
+  - host-header
+  - header-injection
+  - cache-poisoning
+
+variables:
+  evil_host: "evil.com"
+
+requests:
+  - method: GET
+    path:
+      - "/"
+
+    headers:
+      Host: "{{evil_host}}"
+
+    matchers-condition: or
+    matchers:
+      - type: regex
+        part: header
+        regex:
+          - "(?i)location:\\s*((http|https)://)?{{evil_host}}"
+
+      - type: word
+        part: body
+        words:
+          - "evil.com"
+
+  - method: GET
+    path:
+      - "/"
+
+    headers:
+      X-Forwarded-Host: "{{evil_host}}"
+
+    matchers-condition: or
+    matchers:
+      - type: regex
+        part: header
+        regex:
+          - "(?i)location:\\s*((http|https)://)?{{evil_host}}"
+
+      - type: word
+        part: body
+        words:
+          - "evil.com"
+
+  - method: GET
+    path:
+      - "/"
+
+    headers:
+      X-Host: "{{evil_host}}"
+
+    matchers-condition: or
+    matchers:
+      - type: regex
+        part: header
+        regex:
+          - "(?i)location:\\s*((http|https)://)?{{evil_host}}"
+
+      - type: word
+        part: body
+        words:
+          - "evil.com"

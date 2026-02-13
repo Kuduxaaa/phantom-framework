@@ -1,0 +1,61 @@
+id: fuzz-param-xss
+name: XSS - Parameter Fuzzing
+version: 1.0
+author: Phantom Team
+severity: medium
+description: >
+  Fuzzes common parameter names with XSS probe markers and checks if they
+  are reflected unencoded in HTML responses. Tests single quotes, double
+  quotes, backticks, and HTML tag markers across typical input parameters.
+
+tags:
+  - xss
+  - injection
+  - fuzzing
+  - parameter-discovery
+
+requests:
+  - method: GET
+    path:
+      - "/?q={{payload}}"
+      - "/?search={{payload}}"
+      - "/?name={{payload}}"
+      - "/?user={{payload}}"
+      - "/?query={{payload}}"
+      - "/?input={{payload}}"
+      - "/?text={{payload}}"
+      - "/?value={{payload}}"
+      - "/?message={{payload}}"
+      - "/?title={{payload}}"
+      - "/?comment={{payload}}"
+      - "/?redirect={{payload}}"
+      - "/?url={{payload}}"
+      - "/?next={{payload}}"
+      - "/?callback={{payload}}"
+      - "/?data={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "'xsshere"
+        - "<xsshere>"
+        - '"xsshere'
+        - "`xsshere"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: regex
+        regex:
+          - "(?i)(''|\"\"|``)xsshere|<xsshere>"
+        condition: or
+
+      - type: word
+        part: header
+        words:
+          - "text/html"
+
+stop-at-first-match: true

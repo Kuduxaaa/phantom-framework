@@ -1,0 +1,68 @@
+id: os-command-injection
+name: OS Command Injection Detection
+version: 1.0
+author: GochaOqradze
+severity: high
+description: >
+  Detects OS command injection by injecting shell commands using various
+  separator characters (;, |, ||, &&, newline). Payloads include arithmetic
+  evaluation markers and /etc/passwd read attempts to confirm execution.
+
+info:
+  cwe-id: CWE-78
+
+tags:
+  - rce
+  - command-injection
+  - injection
+  - os
+
+references:
+  - https://owasp.org/www-community/attacks/Command_Injection
+
+requests:
+  - method: GET
+    path:
+      - "/exec?cmd={{payload}}"
+      - "/ping?host={{payload}}"
+      - "/lookup?domain={{payload}}"
+      - "/search?q={{payload}}"
+      - "/api?input={{payload}}"
+
+    redirects: true
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%20echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - ";echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "&echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "|echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "||echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "&&echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%0aecho%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%3Becho%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%26echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%26%26echo%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%7Cecho%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%7C%7Cecho%20AGIYMZ$((282037%2B31337))$(echo%20AGIYMZ)AGIYMZ"
+        - "%26%26cat${IFS}/etc/passwd"
+        - "%26%26cat /etc/passwd"
+
+    matchers:
+      - type: regex
+        regex:
+          - "root:[x*]:0:0:"
+          - "AGIYMZ313374AGIYMZAGIYMZ"
+        condition: or
+
+    extractors:
+      - type: regex
+        name: command_output
+        regex:
+          - "(AGIYMZ\\d+AGIYMZAGIYMZ)"
+          - "(root:.*:0:0:[^\\n]+)"
+        group: 1
+
+stop-at-first-match: true

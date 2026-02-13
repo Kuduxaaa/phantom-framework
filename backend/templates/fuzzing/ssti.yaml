@@ -1,0 +1,49 @@
+id: fuzz-param-ssti
+name: Template Injection - Parameter Fuzzing
+version: 1.0
+author: Phantom Team
+severity: medium
+description: >
+  Fuzzes common parameter names with server-side template injection payloads
+  in various template engine syntaxes (ERB, Ruby, Jinja2, Mako, Freemarker).
+  If the computed result (51783 = 123 * 421) appears, the template engine
+  is evaluating user-controlled input.
+
+tags:
+  - ssti
+  - template-injection
+  - fuzzing
+  - parameter-discovery
+
+requests:
+  - method: GET
+    path:
+      - "/?q={{payload}}"
+      - "/?search={{payload}}"
+      - "/?name={{payload}}"
+      - "/?user={{payload}}"
+      - "/?template={{payload}}"
+      - "/?render={{payload}}"
+      - "/?page={{payload}}"
+      - "/?view={{payload}}"
+      - "/?input={{payload}}"
+      - "/?text={{payload}}"
+      - "/?message={{payload}}"
+      - "/?bio={{payload}}"
+      - "/?content={{payload}}"
+      - "/?title={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "<%= 123 * 421 %>inject"
+        - "#{123 * 421}inject"
+        - "${{123*421}}inject"
+        - "${123*421}inject"
+
+    matchers:
+      - type: word
+        words:
+          - "51783inject"
+
+stop-at-first-match: true

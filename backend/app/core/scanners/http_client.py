@@ -14,7 +14,11 @@ class HTTPClient:
         self.client = httpx.AsyncClient(
             timeout=timeout,
             follow_redirects=follow_redirects,
-            verify=False
+            verify=False,
+            limits=httpx.Limits(
+                max_connections=100,
+                max_keepalive_connections=20,
+            ),
         )
     
     async def request(

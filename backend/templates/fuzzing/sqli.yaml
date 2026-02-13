@@ -1,0 +1,84 @@
+id: fuzz-param-sqli
+name: SQL Injection - Parameter Fuzzing
+version: 1.0
+author: Phantom Team
+severity: medium
+description: >
+  Fuzzes common parameter names with SQL injection payloads (quote characters)
+  and checks for database error messages across all major DBMS platforms.
+  Targets typical injectable parameters like id, search, page, user, etc.
+
+tags:
+  - sqli
+  - injection
+  - fuzzing
+  - parameter-discovery
+
+requests:
+  - method: GET
+    path:
+      - "/?id={{payload}}"
+      - "/?search={{payload}}"
+      - "/?page={{payload}}"
+      - "/?user={{payload}}"
+      - "/?name={{payload}}"
+      - "/?email={{payload}}"
+      - "/?query={{payload}}"
+      - "/?filter={{payload}}"
+      - "/?sort={{payload}}"
+      - "/?order={{payload}}"
+      - "/?category={{payload}}"
+      - "/?item={{payload}}"
+      - "/?product={{payload}}"
+      - "/?lang={{payload}}"
+      - "/?type={{payload}}"
+      - "/?action={{payload}}"
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "'"
+        - '"'
+        - "`"
+
+    matchers:
+      - type: regex
+        regex:
+          - "check the manual that (corresponds to|fits) your (MySQL|MariaDB) server version"
+          - "SQL syntax.*?MySQL"
+          - "Warning.*?\\Wmysqli?_"
+          - "MySQLSyntaxErrorException"
+          - "PostgreSQL.*?ERROR"
+          - "Warning.*?\\Wpg_"
+          - "PG::SyntaxError:"
+          - "PSQLException"
+          - "\\bORA-\\d{5}"
+          - "Oracle error"
+          - "SQL command not properly ended"
+          - "OracleException"
+          - "System\\.Data\\.SqlClient\\.SqlException"
+          - "ODBC SQL Server Driver"
+          - "SQL(Srv|Server)Exception"
+          - "SQLite\\.Exception"
+          - "sqlite3.OperationalError:"
+          - "SQLiteException"
+          - "CLI Driver.*?DB2"
+          - "DB2 SQL error"
+          - "DB2Exception"
+          - "Dynamic SQL Error"
+          - "org\\.firebirdsql\\.jdbc"
+          - "Exception.*?Informix"
+          - "IfxException"
+          - "SybSQLException"
+          - "com\\.sap\\.dbtech\\.jdbc"
+          - "org\\.h2\\.jdbc"
+          - "org\\.hsqldb\\.jdbc"
+          - "org\\.apache\\.derby"
+          - "io\\.crate\\.client\\.jdbc"
+          - "encountered after end of query"
+          - "Microsoft Access.*?Driver"
+          - "JET Database Engine"
+          - "Syntax error \\(missing operator\\) in query expression"
+        condition: or
+
+stop-at-first-match: true

