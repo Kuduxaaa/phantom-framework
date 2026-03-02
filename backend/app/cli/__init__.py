@@ -1,9 +1,9 @@
 """
 Phantom CLI — command-line interface for Phantom Framework.
 
-This module is the independent CLI controller, separated from the
-scanner core. It owns argument parsing, display formatting, and
-command dispatch, while delegating scanning logic to app.core.
+Independent CLI controller separated from the scanner core.
+Owns argument parsing, display formatting, and command dispatch,
+while delegating scanning logic to app.core.
 """
 
 import sys
@@ -12,7 +12,12 @@ __version__ = "0.2.1"
 
 
 def main():
-    """CLI entry point — parse args, dispatch to command handler."""
+    """
+    CLI entry point.
+
+    Parses arguments, creates a Display instance, and dispatches
+    to the appropriate command handler.
+    """
     from app.cli.parser import build_parser
     from app.cli.display import Display
 
@@ -43,9 +48,12 @@ def main():
 
 
 def _apply_default_subcommand():
-    """Implicit 'scan' when first argument isn't a known subcommand.
+    """
+    Insert 'scan' as the default subcommand when the first argument
+    is not a known subcommand or top-level flag.
 
-    Allows 'ph https://target.com' as shorthand for 'ph scan https://target.com'.
+    Allows 'ph https://target.com' as shorthand for
+    'ph scan https://target.com'.
     """
     if len(sys.argv) < 2:
         return

@@ -11,7 +11,12 @@ from app.cli import __version__
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Construct the top-level parser with scan/template subcommands."""
+    """
+    Construct the top-level parser with scan/template subcommands.
+
+    Returns:
+        The fully configured ArgumentParser instance.
+    """
     parser = argparse.ArgumentParser(
         prog="ph",
         description="Phantom \u26E9  Template-based vulnerability scanner",
@@ -27,8 +32,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     subs = parser.add_subparsers(dest="command", metavar="<command>")
 
-    # ── scan ───────────────────────────────────────────────
-
     scan_p = subs.add_parser(
         "scan",
         help="scan target(s) for vulnerabilities",
@@ -40,8 +43,6 @@ def build_parser() -> argparse.ArgumentParser:
     from app.cli.commands.scan import handle as scan_handle
     scan_p.set_defaults(handler=scan_handle)
 
-    # ── template ───────────────────────────────────────────
-
     tmpl_p = subs.add_parser(
         "template",
         help="manage detection templates",
@@ -52,7 +53,6 @@ def build_parser() -> argparse.ArgumentParser:
         dest="template_command", metavar="<subcommand>",
     )
 
-    # template list
     tl = tmpl_subs.add_parser("list", help="list available templates")
     tl.add_argument(
         "--tags", metavar="TAGS",
@@ -68,7 +68,6 @@ def build_parser() -> argparse.ArgumentParser:
     from app.cli.commands.template import handle_list
     tl.set_defaults(handler=handle_list)
 
-    # template validate
     tv = tmpl_subs.add_parser("validate", help="validate template syntax")
     tv.add_argument(
         "-t", "--template", metavar="PATH",
@@ -79,7 +78,6 @@ def build_parser() -> argparse.ArgumentParser:
     from app.cli.commands.template import handle_validate
     tv.set_defaults(handler=handle_validate)
 
-    # template info
     ti = tmpl_subs.add_parser("info", help="show template details")
     ti.add_argument("template", help="template path (relative to templates/)")
     ti.add_argument("--no-color", action="store_true", help="disable colors")
@@ -87,16 +85,18 @@ def build_parser() -> argparse.ArgumentParser:
     from app.cli.commands.template import handle_info
     ti.set_defaults(handler=handle_info)
 
-    # bare 'ph template' shows help
     tmpl_p.set_defaults(handler=lambda a, d: tmpl_p.print_help() or 0)
 
     return parser
 
 
 def _add_scan_args(p: argparse.ArgumentParser):
-    """Register all argument groups for the scan subcommand."""
+    """
+    Register all argument groups for the scan subcommand.
 
-    # ── target ─────────────────────────────────────────────
+    Args:
+        p: The scan subcommand parser to populate.
+    """
     tg = p.add_argument_group("target")
     tg.add_argument("target", nargs="?", help="target URL to scan")
     tg.add_argument(
@@ -104,7 +104,6 @@ def _add_scan_args(p: argparse.ArgumentParser):
         help="file with target URLs (one per line)",
     )
 
-    # ── templates ──────────────────────────────────────────
     tp = p.add_argument_group("templates")
     tp.add_argument(
         "-t", "--template", metavar="PATH",
@@ -120,7 +119,6 @@ def _add_scan_args(p: argparse.ArgumentParser):
         help="minimum severity: info|low|medium|high|critical",
     )
 
-    # ── crawler ────────────────────────────────────────────
     cg = p.add_argument_group("crawler")
     cg.add_argument(
         "-d", "--depth", type=int, default=3,
@@ -135,7 +133,6 @@ def _add_scan_args(p: argparse.ArgumentParser):
         help="skip crawling, use template paths only",
     )
 
-    # ── http ───────────────────────────────────────────────
     hg = p.add_argument_group("http")
     hg.add_argument(
         "-c", "--concurrency", type=int, default=10,
@@ -158,7 +155,6 @@ def _add_scan_args(p: argparse.ArgumentParser):
         help="follow HTTP redirects",
     )
 
-    # ── output ─────────────────────────────────────────────
     og = p.add_argument_group("output")
     og.add_argument(
         "-o", "--output", metavar="FILE",
@@ -175,6 +171,12 @@ def _add_scan_args(p: argparse.ArgumentParser):
 
 
 def _epilog() -> str:
+    """
+    Build the epilog text with usage examples.
+
+    Returns:
+        Formatted examples string for argparse epilog.
+    """
     return """\
 examples:
   ph https://target.com                              scan with all templates

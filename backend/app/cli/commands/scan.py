@@ -26,7 +26,20 @@ from app.core.signatures.parser import SignatureParser
 
 
 def handle(args, display: Display) -> int:
-    """Entry point for 'ph scan'."""
+    """
+    Entry point for 'ph scan'.
+
+    Resolves targets, dispatches scanning for each, and writes
+    optional JSON output.
+
+    Args:
+        args: Parsed CLI arguments.
+        display: Display instance for terminal output.
+
+    Returns:
+        Exit code: 0 clean, 1 vulnerabilities found, 2 errors.
+    """
+
     targets = _resolve_targets(args, display)
     if not targets:
         display.error("no targets specified (use <url> or -l <file>)")
@@ -71,11 +84,21 @@ def handle(args, display: Display) -> int:
     return 1 if total_vulns else 0
 
 
-# ── Helpers ────────────────────────────────────────────────
-
-
 def _resolve_targets(args, display: Display) -> list[str]:
-    """Build normalized target list from CLI arguments."""
+    """
+    Build normalized target list from CLI arguments.
+
+    Reads targets from positional argument and/or a file, prepending
+    https:// to bare hostnames.
+
+    Args:
+        args: Parsed CLI arguments.
+        display: Display instance for error output.
+
+    Returns:
+        List of fully qualified target URLs.
+    """
+
     targets = []
 
     if args.target:
@@ -98,23 +121,41 @@ def _resolve_targets(args, display: Display) -> list[str]:
 
 
 def _parse_headers(raw: list[str] | None) -> dict:
-    """Parse 'Name: Value' header strings into a dict."""
+    """
+    Parse 'Name: Value' header strings into a dict.
+
+    Args:
+        raw: List of raw header strings from CLI.
+
+    Returns:
+        Dictionary mapping header names to values.
+    """
+
     if not raw:
         return {}
+    
     headers = {}
+    
     for h in raw:
         if ":" in h:
             key, value = h.split(":", 1)
             headers[key.strip()] = value.strip()
+    
     return headers
 
 
 def _uses_param_injection(paths: list[str]) -> bool:
-    """Check if any request path uses query parameter injection markers."""
+    """
+    Check if any request path uses query parameter injection markers.
+
+    Args:
+        paths: List of URL path templates.
+
+    Returns:
+        True if any path contains injection placeholders.
+    """
+
     return any("?" in p and "={{" in p for p in paths)
-
-
-# ── Core scan logic ───────────────────────────────────────
 
 
 async def _scan_target(
@@ -132,7 +173,32 @@ async def _scan_target(
     min_severity: str | None = None,
     tags: list[str] | None = None,
 ) -> dict:
-    """Execute a full scan against a single target."""
+    """
+    Execute a full scan against a single target.
+
+    Loads templates, tests connectivity, crawls for injection points,
+    then runs all templates concurrently with a semaphore-limited
+    worker pool.
+
+    Args:
+        target_url: The URL to scan.
+        display: Display instance for terminal output.
+        filter_path: Optional template path or category filter.
+        concurrency: Maximum concurrent scan workers.
+        crawl_depth: Maximum crawl depth.
+        max_pages: Maximum pages to crawl.
+        no_crawl: Skip crawling entirely.
+        timeout: HTTP request timeout in seconds.
+        proxy: Optional proxy URL.
+        headers: Optional custom HTTP headers.
+        follow_redirects: Whether to follow HTTP redirects.
+        min_severity: Minimum severity level filter.
+        tags: Optional tag filter list.
+
+    Returns:
+        Dictionary with vulnerabilities, statistics, and error count.
+    """
+
     templates = discover_templates(filter_path)
     templates = filter_templates(templates, min_severity, tags)
 
@@ -150,20 +216,15 @@ async def _scan_target(
         for p in templates
     }
 
-    # Color shorthand
-    b  = display.c(Color.BOLD)
-    d  = display.c(Color.DIM)
+    b = display.c(Color.BOLD)
+    d = display.c(Color.DIM)
     cy = display.c(Color.CYAN)
-    r  = display.c(Color.RESET)
+    r = display.c(Color.RESET)
 
     display.banner(__version__)
 
-    # ── Target phase ──────────────────────────────────────
-
     display.phase("target")
     display.text(f"    {cy}{target_url}{r}")
-
-    # ── Recon phase ───────────────────────────────────────
 
     display.phase("recon")
 
@@ -236,28 +297,36 @@ async def _scan_target(
     else:
         display.status("crawl", f"{d}disabled{r}")
 
-    # ── Scan phase ─────────────────────────────────────────
-
     display.phase("scan")
     display.status(
         "templates",
         f"{b}{total}{r} loaded {d}\u00b7{r} {len(categories)} categories",
     )
-    display.blank()
 
+    display.blank()
     sem = asyncio.Semaphore(concurrency)
+
     progress = [0]
     matched = [0]
     errors = [0]
     severity_counts = {
-        "critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0,
+        "critical": 0, 
+        "high": 0,
+        "medium": 0, 
+        "low": 0,
+        "info": 0,
     }
+
     sig_parser = SignatureParser()
     vulns = []
 
     display.progress_start()
 
     async def _scan_one(path):
+        """
+        Run a single template against the target.
+        """
+        
         template_name = parse_template_name(path)
         rel = path.relative_to(TEMPLATES_DIR)
 
@@ -274,7 +343,6 @@ async def _scan_target(
                 errors[0] += 1
                 return
 
-            # Inject discovered paths into parameter-injection templates
             if injection_paths:
                 for req in signature.get("requests", []):
                     if req.get("payloads") and _uses_param_injection(
@@ -286,12 +354,18 @@ async def _scan_target(
                                 req["path"].append(ip)
 
             scanner = SignatureScanner(http_client=client)
+            
             try:
                 result = await scanner.scan_with_signature(
                     signature, target_url
                 )
+            
             except Exception as e:
-                result = {"success": False, "error": str(e)}
+                result = {
+                    "success": False, 
+                    "error": str(e)
+                }
+            
             finally:
                 await scanner.close()
 
@@ -299,6 +373,7 @@ async def _scan_target(
                 display.error(
                     f"{template_name}: {result.get('error')}"
                 )
+
                 errors[0] += 1
                 return
 
@@ -326,7 +401,9 @@ async def _scan_target(
                 severity_counts[severity] = (
                     severity_counts.get(severity, 0) + 1
                 )
+
                 matched[0] += 1
+
             else:
                 all_results = result.get("results", [])
                 if all_results and all(
@@ -335,6 +412,7 @@ async def _scan_target(
                     display.warn(
                         f"all requests timed out for '{template_name}'"
                     )
+
                     errors[0] += 1
 
     await asyncio.gather(*[_scan_one(p) for p in templates])
@@ -366,7 +444,15 @@ async def _scan_target(
 
 
 def _write_json(results: list[dict], path: str, display: Display):
-    """Aggregate multi-target results and write JSON output."""
+    """
+    Aggregate multi-target results and write JSON output.
+
+    Args:
+        results: List of per-target result dictionaries.
+        path: Output file path.
+        display: Display instance for status output.
+    """
+    
     total_duration = sum(
         r["statistics"].get("duration", 0) for r in results
     )

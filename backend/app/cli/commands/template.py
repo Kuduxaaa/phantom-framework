@@ -19,11 +19,16 @@ TEMPLATES_DIR = Path(__file__).resolve().parents[3] / "templates"
 SEVERITY_ORDER = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
 
 
-# ── Template utilities (reused by scan command) ────────────
-
-
 def discover_templates(filter_path: str | None = None) -> list[Path]:
-    """Find YAML templates, optionally filtered by sub-path or glob."""
+    """
+    Find YAML templates, optionally filtered by sub-path or glob.
+
+    Args:
+        filter_path: Optional path relative to templates directory.
+
+    Returns:
+        Sorted list of matching template file paths.
+    """
     if filter_path:
         target = TEMPLATES_DIR / filter_path
         if target.is_file() and target.suffix in (".yaml", ".yml"):
@@ -42,7 +47,17 @@ def filter_templates(
     min_severity: str | None = None,
     tags: list[str] | None = None,
 ) -> list[Path]:
-    """Filter templates by minimum severity and/or required tags."""
+    """
+    Filter templates by minimum severity and/or required tags.
+
+    Args:
+        templates: List of template file paths to filter.
+        min_severity: Minimum severity threshold.
+        tags: Required tags (at least one must match).
+
+    Returns:
+        Filtered list of template paths.
+    """
     if not min_severity and not tags:
         return templates
 
@@ -63,7 +78,15 @@ def filter_templates(
 
 
 def parse_template_name(path: Path) -> str:
-    """Quick name extraction without full YAML parse."""
+    """
+    Quick name extraction without full YAML parse.
+
+    Args:
+        path: Path to the template file.
+
+    Returns:
+        The template name string, or stem as fallback.
+    """
     try:
         for line in path.open():
             stripped = line.strip()
@@ -75,17 +98,23 @@ def parse_template_name(path: Path) -> str:
 
 
 def parse_template_meta(path: Path) -> dict:
-    """Read full template metadata via yaml.safe_load.
+    """
+    Read full template metadata via yaml.safe_load.
 
     Supports both flat templates (severity/name at top level) and
     Nuclei-style templates with an 'info' block.
+
+    Args:
+        path: Path to the template file.
+
+    Returns:
+        Dictionary with id, name, severity, description, author, tags.
     """
     try:
         data = yaml.safe_load(path.read_text())
         if not isinstance(data, dict):
             return _default_meta(path)
 
-        # Templates may nest metadata in 'info' or keep it at root level
         info = data.get("info", {}) if isinstance(data.get("info"), dict) else {}
         raw_tags = info.get("tags", data.get("tags", []))
 
@@ -106,6 +135,15 @@ def parse_template_meta(path: Path) -> dict:
 
 
 def _default_meta(path: Path) -> dict:
+    """
+    Return fallback metadata when parsing fails.
+
+    Args:
+        path: Path to the template file.
+
+    Returns:
+        Dictionary with default metadata values.
+    """
     return {
         "id": path.stem,
         "name": path.stem,
@@ -116,11 +154,17 @@ def _default_meta(path: Path) -> dict:
     }
 
 
-# ── Command handlers ──────────────────────────────────────
-
-
 def handle_list(args, display: Display) -> int:
-    """Handle 'ph template list'."""
+    """
+    Handle 'ph template list'.
+
+    Args:
+        args: Parsed CLI arguments.
+        display: Display instance for terminal output.
+
+    Returns:
+        Exit code: 0 on success, 1 if no templates matched.
+    """
     tag_list = (
         [t.strip() for t in args.tags.split(",")]
         if getattr(args, "tags", None)
@@ -140,11 +184,30 @@ def handle_list(args, display: Display) -> int:
 
 
 def handle_validate(args, display: Display) -> int:
-    """Handle 'ph template validate'."""
+    """
+    Handle 'ph template validate'.
+
+    Args:
+        args: Parsed CLI arguments.
+        display: Display instance for terminal output.
+
+    Returns:
+        Exit code: 0 if all passed, 1 if any failed.
+    """
     return asyncio.run(_validate_async(args, display))
 
 
 async def _validate_async(args, display: Display) -> int:
+    """
+    Async validation runner for all matching templates.
+
+    Args:
+        args: Parsed CLI arguments.
+        display: Display instance for terminal output.
+
+    Returns:
+        Exit code: 0 if all passed, 1 if any failed.
+    """
     filter_path = getattr(args, "template", None)
     templates = discover_templates(filter_path)
     scanner = SignatureScanner()
@@ -179,7 +242,16 @@ async def _validate_async(args, display: Display) -> int:
 
 
 def handle_info(args, display: Display) -> int:
-    """Handle 'ph template info <template>'."""
+    """
+    Handle 'ph template info <template>'.
+
+    Args:
+        args: Parsed CLI arguments.
+        display: Display instance for terminal output.
+
+    Returns:
+        Exit code: 0 on success, 1 if template not found.
+    """
     templates = discover_templates(args.template)
     if not templates:
         display.error(f"template not found: {args.template}")
