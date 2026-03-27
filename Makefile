@@ -1,6 +1,6 @@
 .PHONY: install install\:backend install\:frontend \
        run run\:backend run\:frontend \
-       proxy test clean
+       proxy mcp test clean
 
 # ── Install ───────────────────────────────────────────────
 
@@ -26,6 +26,11 @@ run\:frontend:
 
 proxy:
 	cd backend && python3 -c "from app.core.proxy.server import run; run()"
+
+# ── MCP Server ───────────────────────────────────────────
+
+mcp:
+	cd backend && python3 mcp_server.py
 
 # ── Utils ─────────────────────────────────────────────────
 
