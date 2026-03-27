@@ -87,6 +87,18 @@ def build_parser() -> argparse.ArgumentParser:
 
     tmpl_p.set_defaults(handler=lambda a, d: tmpl_p.print_help() or 0)
 
+    # ── ph proxy ──────────────────────────────────────────────
+    proxy_p = subs.add_parser(
+        "proxy",
+        help="start ph-proxy intercepting proxy",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Start the ph-proxy forward intercepting proxy.",
+    )
+    _add_proxy_args(proxy_p)
+
+    from app.cli.commands.proxy import handle as proxy_handle
+    proxy_p.set_defaults(handler=proxy_handle)
+
     return parser
 
 
@@ -170,6 +182,24 @@ def _add_scan_args(p: argparse.ArgumentParser):
     )
 
 
+def _add_proxy_args(p: argparse.ArgumentParser):
+    """
+    Register arguments for the proxy subcommand.
+    """
+    p.add_argument(
+        "-p", "--port", type=int, default=8080,
+        help="proxy listen port (default: 8080)",
+    )
+    p.add_argument(
+        "-v", "--verbose", action="store_true",
+        help="enable debug logging",
+    )
+    p.add_argument(
+        "--no-color", action="store_true",
+        help="disable colored output",
+    )
+
+
 def _epilog() -> str:
     """
     Build the epilog text with usage examples.
@@ -188,4 +218,6 @@ examples:
   ph template list --severity high                   list high-sev templates
   ph template validate                               validate all templates
   ph template info injection/sql/error-based.yaml    show template details
+  ph proxy                                            start intercepting proxy
+  ph proxy -p 9090                                    custom port
 """

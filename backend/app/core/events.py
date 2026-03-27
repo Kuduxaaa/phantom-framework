@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Any
+from typing import Callable, Dict, List, Any, Optional
 
 
 class EventBus:
@@ -41,7 +41,7 @@ class EventBus:
                 await callback(data)
     
     @classmethod
-    def clear(cls, event: str = None):
+    def clear(cls, event: Optional[str] = None):
         """
         Clear subscribers for an event or all events.
         

@@ -218,7 +218,7 @@ See [Template Development Guide](https://github.com/Kuduxaaa/phantom-framework/b
 - [ ] Change detection and monitoring
 - [ ] Report generation
 - [ ] WebSocket real-time updates
-- [ ] Phantom Proxy (Requests capturing/replying/fuzzing)
+- [x] Phantom Proxy (Requests capturing/replying/fuzzing)
 - [ ] Built-in AI agent assistant
 
 ### Phase 5: UI & Visualization

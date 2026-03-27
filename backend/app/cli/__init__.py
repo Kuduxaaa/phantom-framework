@@ -61,5 +61,5 @@ def _apply_default_subcommand():
     first = sys.argv[1]
     if first in ("-h", "--help", "-V", "--version"):
         return
-    if first not in ("scan", "template"):
+    if first not in ("scan", "template", "proxy"):
         sys.argv.insert(1, "scan")
