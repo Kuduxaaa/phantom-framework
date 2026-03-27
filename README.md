@@ -35,6 +35,10 @@ python scan.py -l targets.txt -o results.json --silent
 python scan.py --list          # List all templates
 python scan.py --validate      # Validate templates
 python scan.py --version
+
+# Start the intercepting proxy (MITM TLS)
+ph proxy                       # listen on :8080
+ph proxy -v                    # verbose: show full headers
 ```
 
 ---
@@ -81,6 +85,15 @@ Key capabilities:
 - **Payload Attacks**: Batteringram, Pitchfork, and Clusterbomb modes
 - **False Positive Suppression**: Multi-layer matchers with negative filters
 
+### Intercepting Proxy (ph-proxy)
+- **MITM TLS Interception**: Decrypt HTTPS traffic with on-the-fly certificate generation
+- **Auto CA Management**: Generates a root CA on first run (`~/.ph-proxy/ca.pem`)
+- **Full Traffic Logging**: See every HTTP/HTTPS request and response in the CLI
+- **Verbose Mode**: Inspect full headers with `ph proxy -v`
+- **WebSocket Tunneling**: Bidirectional WebSocket proxy support
+
+See [PhProxy Guide](docs/PhProxy_Guide.md) for setup and usage.
+
 ### Intelligence & Analysis
 - **JavaScript Analysis**: Endpoint extraction and secret detection
 - **API Discovery**: REST, GraphQL, and WebSocket enumeration
@@ -99,7 +112,12 @@ phantom-framework/
 │   │   ├── api/                   # FastAPI REST endpoints
 │   │   ├── core/
 │   │   │   ├── scanners/          # HTTPClient, SignatureScanner, Crawler
-│   │   │   └── signatures/        # Parser, matchers, DSL engine
+│   │   │   ├── signatures/        # Parser, matchers, DSL engine
+│   │   │   └── proxy/             # ph-proxy intercepting proxy
+│   │   │       ├── handler.py     # HTTP forwarding, MITM CONNECT, WebSocket
+│   │   │       ├── certs.py       # CA + per-domain cert generation
+│   │   │       ├── server.py      # Raw aiohttp server
+│   │   │       └── transport/     # Streaming, WebSocket tunnel
 │   │   ├── models/                # SQLAlchemy models
 │   │   ├── repositories/          # Data access layer
 │   │   └── services/              # Business logic
@@ -110,7 +128,8 @@ phantom-framework/
 │       ├── misconfiguration/      # 403 bypass
 │       ├── redirect/              # Open redirect, host header injection
 │       └── ssrf/                  # SSRF detection
-└── tests/
+├── frontend/                      # Vue 3 frontend
+└── docs/
 ```
 
 **Technology Stack:**
@@ -118,6 +137,7 @@ phantom-framework/
 - **Database**: MySQL (async via aiomysql)
 - **Scanning**: httpx (async HTTP), custom crawler
 - **Templates**: YAML signature system with DSL support
+- **Proxy**: aiohttp, MITM TLS via cryptography
 
 ---
 
