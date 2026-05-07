@@ -1,0 +1,121 @@
+/**
+ * Phantom Framework — Design Tokens
+ *
+ * Dark-only canonical theme. Vermillion accent.
+ * Keep all visual primitives here; components reference variables only.
+ */
+
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  --font-serif: var(--font-sans);
+
+  --t-xs: 11px;
+  --t-sm: 12px;
+  --t-base: 13px;
+  --t-md: 13px;
+  --t-lg: 15px;
+  --t-xl: 18px;
+  --t-2xl: 22px;
+  --t-3xl: 28px;
+
+  --lh-tight: 1.2;
+  --lh-snug: 1.35;
+  --lh-normal: 1.5;
+  --lh-loose: 1.65;
+
+  --tracking-label: 0.04em;
+  --tracking-tight: -0.011em;
+  --tracking-tighter: -0.02em;
+
+  --s-0: 0;
+  --s-1: 2px;
+  --s-2: 4px;
+  --s-3: 6px;
+  --s-4: 8px;
+  --s-5: 12px;
+  --s-6: 16px;
+  --s-7: 20px;
+  --s-8: 24px;
+  --s-9: 32px;
+  --s-10: 40px;
+  --s-11: 56px;
+  --s-12: 72px;
+
+  --r-0: 0;
+  --r-1: 5px;
+  --r-2: 8px;
+  --r-3: 12px;
+  --r-4: 16px;
+  --r-full: 999px;
+
+  --bw: 1px;
+
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-slow: 280ms;
+
+  --bg: #0a0c10;
+  --bg-elev: #11141a;
+  --bg-sunken: #07080b;
+  --surface: #161922;
+  --surface-2: #1c2030;
+
+  --line: rgba(255, 255, 255, 0.06);
+  --line-soft: rgba(255, 255, 255, 0.035);
+  --line-strong: rgba(255, 255, 255, 0.12);
+
+  --fg: #ecedf1;
+  --fg-muted: #a8acbd;
+  --fg-subtle: #6f7488;
+  --fg-faint: #4a4e5e;
+
+  --accent: #e5484d;
+  --accent-hover: #f06870;
+  --accent-soft: rgba(229, 72, 77, 0.14);
+  --accent-strong: rgba(229, 72, 77, 0.22);
+  --accent-text: #ffffff;
+
+  --sev-critical: #f06870;
+  --sev-critical-bg: rgba(240, 104, 112, 0.13);
+  --sev-critical-bd: rgba(240, 104, 112, 0.28);
+  --sev-high: #ff8a5b;
+  --sev-high-bg: rgba(255, 138, 91, 0.13);
+  --sev-high-bd: rgba(255, 138, 91, 0.28);
+  --sev-medium: #e0b03d;
+  --sev-medium-bg: rgba(224, 176, 61, 0.13);
+  --sev-medium-bd: rgba(224, 176, 61, 0.28);
+  --sev-low: #5fc88a;
+  --sev-low-bg: rgba(95, 200, 138, 0.13);
+  --sev-low-bd: rgba(95, 200, 138, 0.28);
+  --sev-info: #6b8aff;
+  --sev-info-bg: rgba(107, 138, 255, 0.13);
+  --sev-info-bd: rgba(107, 138, 255, 0.28);
+
+  --ok: #5fc88a;
+  --warn: #e0b03d;
+  --err: #f06870;
+
+  --selection: rgba(229, 72, 77, 0.22);
+  --hover: rgba(255, 255, 255, 0.04);
+  --active: rgba(255, 255, 255, 0.07);
+  --selected: rgba(229, 72, 77, 0.10);
+
+  --focus: #e5484d;
+
+  --m-get: #6b8aff;
+  --m-post: #5fc88a;
+  --m-put: #e0b03d;
+  --m-delete: #f06870;
+  --m-patch: #b48aff;
+  --m-other: #a8acbd;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.25), 0 0 0 0.5px rgba(255, 255, 255, 0.04);
+  --shadow-2: 0 1px 3px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.32);
+  --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.55), 0 16px 48px rgba(0, 0, 0, 0.4);
+
+  color-scheme: dark;
+}

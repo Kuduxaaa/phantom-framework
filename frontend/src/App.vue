@@ -1,7 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+/**
+ * Application root. Mounts the global app shell.
+ */
+import AppLayout from '@/layouts/AppLayout.vue'
+</script>
 
 <template>
-  <h1>Phantom Framework ⛩️</h1>
+  <AppLayout />
 </template>
-
-<style scoped></style>
